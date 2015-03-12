@@ -1,12 +1,3 @@
-(* 
-Tetris game model followig Tetris Guidelines from http://tetris.wikia.com/
-
-It is written in pure-functional style. Not designed for efficiency
-but rather as OCaml learning excericse.
-
-Vadim Zaliva <lord@crocodile.org>
- *)
-
 open Batteries;;
 open BatList;;
 

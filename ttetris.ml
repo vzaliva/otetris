@@ -38,6 +38,11 @@ let cell_color c =
   match c with
   | Empty -> LTerm_style.black
   | Color x -> term_color_map x;;
+
+let cell_char c =
+  match c with
+  | Empty -> S" "
+  | Color x -> S"#";;
   
 let rec loop ui state =
   LTerm_ui.wait ui >>= function
@@ -58,7 +63,7 @@ let rec loop ui state =
     | ev ->
         loop ui state
 
-let draw_cell ctx v x y = LTerm_draw.draw_styled ctx y (x+1) (eval [B_bg (cell_color v); S" "; E_fg]);;
+let draw_cell ctx v x y = LTerm_draw.draw_styled ctx y (x+1) (eval [B_bg (cell_color v); (cell_char v); E_fg]);;
 
 let draw_tetromino ctx state =
   ignore (BatList.map (

@@ -17,7 +17,9 @@ type cell = Empty | Color of color ;;
 type tetrimino_kind = I | J | L | O | S | T | Z ;;
 
 type xy = (int*int) ;;
-              
+(* let xy x y = (x,y);; *)
+let xyplus a b : xy = let (ax,ay)=a and (bx,by)=b in (ax+bx,ay+by);;
+
 type tetrimino = {
     kind: tetrimino_kind;
     geometry: xy list;

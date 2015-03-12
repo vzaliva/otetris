@@ -2,6 +2,7 @@
 
 (* Simple text tetris *)
 
+open Batteries;;
 open Extlib.ExtList.List;;
 open Tetris
 
@@ -18,7 +19,8 @@ let rec random_cells n  =
             Color Green; Color Red; Color Blue; Color Orange] in
   if n = 0 then []
   else (pick_random l) :: (random_cells (n-1))
-                            
+
+(* used for debugging *)
 let make_random_field w h : field
   = {width=w; height=h; cells = random_cells (w*h) };;
 
@@ -26,7 +28,7 @@ let initial_state : Tetris.state =
   Random.self_init();
   let p = pick_random all_blocks in
   {score = 0;
-   field = make_random_field board_width board_height;
+   field = make_field board_width board_height;
    piece = p;
    position = p.initial_position;
    rotation = R0;
@@ -66,6 +68,15 @@ let rec loop ui state =
     | ev ->
         loop ui state
 
+let draw_cell ctx v x y = LTerm_draw.draw_styled ctx y (x+1) (eval [B_bg (cell_color v); S" "; E_fg]);;
+
+let draw_piece ctx (state:Tetris.state) =
+  Extlib.ExtList.List.map (
+      (fun (x,y) -> draw_cell ctx (Color state.piece.color) x y)
+      % (rotate (rotation_matrix state.rotation) state.piece.center)
+      % (xyplus state.position)
+    ) state.piece.geometry; ();;
+
 let draw ui matrix state =
   let size = LTerm_ui.size ui in
   let ctx = LTerm_draw.context matrix size in
@@ -73,8 +84,8 @@ let draw ui matrix state =
   let w = state.field.width and h=state.field.height in
   LTerm_draw.draw_frame ctx { row1 = -1; col1 = 0; row2 = h+1; col2 = w+2 } LTerm_draw.Heavy;
   let ctx = LTerm_draw.sub ctx { row1 = 0; col1 = 1; row2 = h; col2 = w+1 } in
-  iter2D state.field.cells w (fun v x y ->
-                              LTerm_draw.draw_styled ctx y (x+1) (eval [B_bg (cell_color v); S" "; E_fg]))
+  iter2D state.field.cells w (draw_cell ctx);
+  draw_piece ctx state
 
 lwt () =
   lwt term = Lazy.force LTerm.stdout in

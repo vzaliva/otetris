@@ -15,7 +15,6 @@ type tetrimino = {
     kind: tetrimino_kind;
     geometry: xy list;
     center: float*float;
-    initial_position: xy;
     color: color;
 } ;;
 
@@ -25,37 +24,30 @@ let all_tetrominoes = [
   { kind = I;
     geometry = [(0,1);(1,1);(2,1);(3,1)];
     center = (2.5, 2.5);
-    initial_position = (0,0);
     color = Cyan };
   { kind = J;
     geometry = [(0,0);(0,1);(1,1);(2,1)];
     center = (2.5,2.5);
-    initial_position = (0,0);
    color = Blue };
   { kind = L;
     geometry=[(0,1);(1,1);(2,1);(2,0)];
     center = (2.5,2.5);
-    initial_position = (0,0);
     color = Orange };
   { kind = O;
     geometry = [(1,0);(2,0);(1,1);(2,1)];
     center = (2.5,1.5);
-    initial_position = (0,0);
     color = Yellow };
   { kind = S;
     geometry = [(0,1);(1,1);(1,0);(2,0)];
     center = (2.5,2.5);
-    initial_position = (0,0);
     color = Green };
   { kind = T;
     geometry = [(0,1);(1,1);(2,1);(1,0)];
     center = (2.5,2.5);
-    initial_position = (0,0);
     color = Purple };
   { kind = Z;
     geometry = [(0,0);(1,0);(1,1);(2,1)];
     center = (2.5,2.5);
-    initial_position = (0,0);
     color = Red }
   ];;
 
@@ -108,6 +100,8 @@ let iter2D l w f =
     if is_empty l then ()
     else ((f (hd l) x y) ; inter2D' (tl l) f w (if x=w then 0 else x+1) (if x=w then (y+1) else y))
     in inter2D' l f (w-1) 0 0;;
-  
+
+let spawn_position p board_width = (truncate ((float board_width /. 2.) -. (fst p.center)), 0);;
+
 type action =  MoveLeft | MoveRight | Rotate | Drop ;;
 

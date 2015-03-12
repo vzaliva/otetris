@@ -20,7 +20,7 @@ let initial_state : Tetris.state =
   {score = 0;
    field = make_field board_width board_height;
    tetromino = p;
-   position = p.initial_position;
+   position = spawn_position p board_width;
    rotation = R0;
   } ;;
   
@@ -34,13 +34,11 @@ let term_color_map = function
   | Orange -> LTerm_style.lyellow
 ;;
 
-let cell_color c =
-  match c with
+let cell_color = function
   | Empty -> LTerm_style.black
   | Color x -> term_color_map x;;
-
-let cell_char c =
-  match c with
+  
+let cell_char = function
   | Empty -> S" "
   | Color x -> S"#";;
   

@@ -23,7 +23,7 @@ first.  Coordinate system have coordinate center on top left.  *)
 let all_tetrominoes = [
   { kind = I;
     geometry = [(0,1);(1,1);(2,1);(3,1)];
-    center = (2.5, 2.5);
+    center = (2., 2.5);
     color = Cyan };
   { kind = J;
     geometry = [(0,0);(0,1);(1,1);(2,1)];
@@ -34,8 +34,8 @@ let all_tetrominoes = [
     center = (2.5,2.5);
     color = Orange };
   { kind = O;
-    geometry = [(1,0);(2,0);(1,1);(2,1)];
-    center = (2.5,1.5);
+    geometry = [(0,0);(1,0);(0,1);(1,1)];
+    center = (1.5,1.5);
     color = Yellow };
   { kind = S;
     geometry = [(0,1);(1,1);(1,0);(2,0)];
@@ -77,8 +77,9 @@ let left_rotation = function
 let rotate (r:float*float*float*float) (c:float*float) (p:xy) : xy =
   let (xc,yc) = c and (x,y) = p and (r11,r12,r21,r22) = r in
   let rx = float x and ry = float y in
-  (truncate ((rx -. xc) *. r11 +. (ry -. yc) *. r12  +. xc),
-   truncate ((rx -. xc) *. r21 +. (ry -. yc) *. r22  +. xc));;
+  let dx = rx -. xc and dy = ry -. yc in
+  (truncate (dx *. r11 +. dy *. r12  +. xc),
+   truncate (dx *. r21 +. dy *. r22  +. xc));;
 
 type field = {width:int; height:int; cells:cell list};;
 

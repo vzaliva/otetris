@@ -3,7 +3,7 @@
 (* Simple text tetris *)
 
 open Batteries;;
-open Extlib.ExtList.List;;
+open BatList;;
 open Tetris
 
 let board_width = 10 and board_height = 22 ;;
@@ -70,12 +70,12 @@ let rec loop ui state =
 
 let draw_cell ctx v x y = LTerm_draw.draw_styled ctx y (x+1) (eval [B_bg (cell_color v); S" "; E_fg]);;
 
-let draw_piece ctx (state:Tetris.state) =
-  Extlib.ExtList.List.map (
+let draw_piece ctx state =
+  ignore (BatList.map (
       (fun (x,y) -> draw_cell ctx (Color state.piece.color) x y)
       % (rotate (rotation_matrix state.rotation) state.piece.center)
       % (xyplus state.position)
-    ) state.piece.geometry; ();;
+    ) state.piece.geometry) ;;
 
 let draw ui matrix state =
   let size = LTerm_ui.size ui in

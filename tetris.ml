@@ -8,8 +8,8 @@ Vadim Zaliva <lord@crocodile.org>
  *)
 
 open Batteries;;
-open Extlib.ExtList.List;;
-  
+open BatList;;
+
 type color =  Cyan  | Yellow  | Purple  | Green  | Red  | Blue  | Orange ;;
 
 type cell = Empty | Color of color ;;

@@ -19,9 +19,9 @@ type tetrimino = {
     color: color;
 } ;;
 
-(* List of all blocks. Initial geometry is given as they should appear
+(* List of all tetrominoes. Initial geometry is given as they should appear
 first.  Coordinate system have coordinate center on top left.  *)
-let all_blocks = [
+let all_tetrominoes = [
   { kind = I;
     geometry = [(0,0);(1,0);(2,0);(3,0)];
     center = (1.5, 0.5);
@@ -74,12 +74,14 @@ let right_rotation = function
   | R180 -> R270
   | R270 -> R0;;
 
+  (*
 let left_rotation = function  
   | R0 -> R270
   | R90 -> R0
   | R180 -> R90
   | R270 -> R180;;
-
+   *)
+  
 let rotate (r:float*float*float*float) (c:float*float) (p:xy) : xy =
   let (xc,yc) = c and (x,y) = p and (r11,r12,r21,r22) = r in
   let rx = float x and ry = float y in
@@ -96,7 +98,7 @@ let pick_random l  =  nth l (Random.int (length l));;
 type state = {
     score: int;
     field: field;
-    piece: tetrimino;
+    tetromino: tetrimino;
     position: xy;
     rotation: rotation;
   } ;;

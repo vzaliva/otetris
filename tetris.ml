@@ -23,31 +23,31 @@ first.  Coordinate system have coordinate center on top left.  *)
 let all_tetrominoes = [
   { kind = I;
     geometry = [(0,1);(1,1);(2,1);(3,1)];
-    center = (2., 2.5);
+    center = (2.5, 1.5);
     color = Cyan };
   { kind = J;
     geometry = [(0,0);(0,1);(1,1);(2,1)];
-    center = (2.5,2.5);
+    center = (1.,1.);
    color = Blue };
   { kind = L;
     geometry=[(0,1);(1,1);(2,1);(2,0)];
-    center = (2.5,2.5);
+    center = (1.,1.);
     color = Orange };
   { kind = O;
     geometry = [(0,0);(1,0);(0,1);(1,1)];
-    center = (1.5,1.5);
+    center = (0.5,0.5);
     color = Yellow };
   { kind = S;
     geometry = [(0,1);(1,1);(1,0);(2,0)];
-    center = (2.5,2.5);
+    center = (1.,1.);
     color = Green };
   { kind = T;
     geometry = [(0,1);(1,1);(2,1);(1,0)];
-    center = (2.5,2.5);
+    center = (1.,1.);
     color = Purple };
   { kind = Z;
     geometry = [(0,0);(1,0);(1,1);(2,1)];
-    center = (2.5,2.5);
+    center = (1.,1.);
     color = Red }
   ];;
 
@@ -70,8 +70,8 @@ let rotate (r:float*float*float*float) (c:float*float) (p:xy) : xy =
   let (xc,yc) = c and (x,y) = p and (r11,r12,r21,r22) = r in
   let rx = float x and ry = float y in
   let dx = rx -. xc and dy = ry -. yc in
-  (truncate (dx *. r11 +. dy *. r12  +. xc),
-   truncate (dx *. r21 +. dy *. r22  +. xc));;
+  (truncate ((dx *. r11 +. dy *. r12)  +. xc),
+   truncate ((dx *. r21 +. dy *. r22)  +. xc));;
 
 type field = {width:int; height:int; cells:cell list};;
 
@@ -126,12 +126,17 @@ let update_state event state : state =
        {score = state.score; field = state.field; tetromino = state.tetromino; rotation = state.rotation;
         position = (x+1,y)
        } else state
-  | Rotate -> let r = clockwise_rotation state.rotation in
-              if fits state.field x y state.tetromino r then
-                {score = state.score; field = state.field; tetromino = state.tetromino; position = (x,y);
-                 rotation = r
-                } else state
+  | Rotate ->
+     let r = clockwise_rotation state.rotation in
+     if fits state.field x y state.tetromino r then
+       {score = state.score; field = state.field; tetromino = state.tetromino; position = state.position;
+        rotation = r
+       } else state
   | Drop -> state
   | Tick -> state
 ;;
   
+(*
+let t = nth all_tetrominoes 3;;
+BatList.map (rotate (rotation_matrix R90) t.center) t.geometry;;
+ *)

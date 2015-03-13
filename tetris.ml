@@ -60,19 +60,11 @@ let rotation_matrix = function
   | R180 -> (-1.,0.,0.,-1.)
   | R270 -> (0.,1.,-1.,0.);;
 
-let right_rotation = function  
+let clockwise_rotation = function  
   | R0 -> R90
   | R90 -> R180
   | R180 -> R270
   | R270 -> R0;;
-
-  (*
-let left_rotation = function  
-  | R0 -> R270
-  | R90 -> R0
-  | R180 -> R90
-  | R270 -> R180;;
-   *)
   
 let rotate (r:float*float*float*float) (c:float*float) (p:xy) : xy =
   let (xc,yc) = c and (x,y) = p and (r11,r12,r21,r22) = r in
@@ -134,7 +126,7 @@ let update_state event state : state =
        {score = state.score; field = state.field; tetromino = state.tetromino; rotation = state.rotation;
         position = (x+1,y)
        } else state
-  | Rotate -> let r = right_rotation state.rotation in
+  | Rotate -> let r = clockwise_rotation state.rotation in
               if fits state.field x y state.tetromino r then
                 {score = state.score; field = state.field; tetromino = state.tetromino; position = (x,y);
                  rotation = r

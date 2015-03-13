@@ -17,6 +17,7 @@ open LTerm_key
 let initial_state : Tetris.state =
   Random.self_init();
   let p = pick_random all_tetrominoes in
+  (* let p = nth all_tetrominoes 0 in *)
   {score = 0;
    field = make_field board_width board_height;
    tetromino = p;
@@ -69,11 +70,11 @@ let draw_cell ctx v x y = LTerm_draw.draw_styled ctx y (x+1) (eval [B_bg (cell_c
 
 let draw_tetromino ctx state =
   ignore (BatList.map (
-      (fun (x,y) -> draw_cell ctx (Color state.tetromino.color) x y)
-      % (rotate (rotation_matrix state.rotation) state.tetromino.center)
-      % (xyplus state.position)
-    ) state.tetromino.geometry) ;;
-
+              (fun (x,y) -> draw_cell ctx (Color state.tetromino.color) x y)
+              % (xyplus state.position)                
+              % (rotate (rotation_matrix state.rotation) state.tetromino.center)
+            ) state.tetromino.geometry) ;;
+  
 let draw ui matrix state =
   let size = LTerm_ui.size ui in
   let ctx = LTerm_draw.context matrix size in

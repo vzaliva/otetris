@@ -22,8 +22,8 @@ type tetrimino = {
 first.  Coordinate system have coordinate center on top left.  *)
 let all_tetrominoes = [
   { kind = I;
-    geometry = [(0,1);(1,1);(2,1);(3,1)];
-    center = (2.5, 1.5);
+    geometry = [(0,0);(1,0);(2,0);(3,0)];
+    center = (1.5, 0.);
     color = Cyan };
   { kind = J;
     geometry = [(0,0);(0,1);(1,1);(2,1)];
@@ -110,8 +110,8 @@ let cell_available f xy = cell_in_range f xy && cell_is_empty f xy ;;
 let fits f x y t r =
   BatList.fold_left (&&) true
                     (BatList.map ((cell_available f)
-                                  % (rotate (rotation_matrix r) t.center)
-                                  % (xyplus (x,y))) t.geometry);;
+                                  % (xyplus (x,y))
+                                  % (rotate (rotation_matrix r) t.center)) t.geometry);;
     
 let update_state event state : state =
   let (x,y) = state.position in
@@ -136,7 +136,6 @@ let update_state event state : state =
   | Tick -> state
 ;;
   
-(*
-let t = nth all_tetrominoes 3;;
-BatList.map (rotate (rotation_matrix R90) t.center) t.geometry;;
- *)
+
+let t = nth all_tetrominoes 0;;
+BatList.map (rotate (rotation_matrix R0) t.center) t.geometry;;

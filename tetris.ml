@@ -106,17 +106,18 @@ let spawn_position p board_width = (truncate ((float board_width /. 2.) -. (fst 
 
 type action =  MoveLeft | MoveRight | Rotate | Drop | Tick;;
 
-let is_cell_empty f (x,y)  =
-  if x>=0 && x<f.width && y>=0 && y<=f.height then
-    match nth f.cells (y*f.width+x) with
-    | Empty -> true
-    | Color _ -> false
-  else
-    false;;
+let cell_is_empty f (x,y)  =
+  match nth f.cells (y*f.width+x) with
+  | Empty -> true
+  | Color _ -> false;;
+  
+let cell_in_range f (x,y) = x>=0 && x<f.width && y>=0 && y<=f.height ;;
 
+let cell_available f xy = cell_in_range f xy && cell_is_empty f xy ;;
+    
 let fits f x y t r =
   BatList.fold_left (&&) true
-                    (BatList.map ((is_cell_empty f)
+                    (BatList.map ((cell_available f)
                                   % (rotate (rotation_matrix r) t.center)
                                   % (xyplus (x,y))) t.geometry);;
     

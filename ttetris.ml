@@ -44,25 +44,27 @@ let cell_char = function
   
 let rec loop ui state =
   LTerm_ui.wait ui >>= function
-    | LTerm_event.Key{ code = Up } ->
-        LTerm_ui.draw ui;
-        loop ui state
-    | LTerm_event.Key{ code = Down } ->
-        LTerm_ui.draw ui;
-        loop ui state
-    | LTerm_event.Key{ code = Left } ->
-       state := update_state MoveLeft !state;
-       LTerm_ui.draw ui;
-       loop ui state
-    | LTerm_event.Key{ code = Right } ->
-       state := update_state MoveRight !state;
-       LTerm_ui.draw ui;
-       loop ui state
-    | LTerm_event.Key{ code = Escape } ->
-        return ()
-    | ev ->
-        loop ui state
-
+  | LTerm_event.Key{ code = Up } ->
+     state := update_state Rotate !state;
+     LTerm_ui.draw ui;
+     loop ui state
+  | LTerm_event.Key{ code = Down } ->
+     state := update_state Drop !state;
+     LTerm_ui.draw ui;
+     loop ui state
+  | LTerm_event.Key{ code = Left } ->
+     state := update_state MoveLeft !state;
+     LTerm_ui.draw ui;
+     loop ui state
+  | LTerm_event.Key{ code = Right } ->
+     state := update_state MoveRight !state;
+     LTerm_ui.draw ui;
+     loop ui state
+  | LTerm_event.Key{ code = Escape } ->
+     return ()
+  | ev ->
+     loop ui state
+          
 let draw_cell ctx v x y = LTerm_draw.draw_styled ctx y (x+1) (eval [B_bg (cell_color v); (cell_char v); E_fg]);;
 
 let draw_tetromino ctx state =

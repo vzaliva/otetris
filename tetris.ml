@@ -121,20 +121,25 @@ let fits f x y t r =
                                   % (rotate (rotation_matrix r) t.center)
                                   % (xyplus (x,y))) t.geometry);;
     
-let update_state event state : state=
+let update_state event state : state =
+  let (x,y) = state.position in
   match event with
-  | MoveLeft -> let (x,y) = state.position in
-                if fits state.field (x-1) y state.tetromino state.rotation then
-                  {score = state.score; field = state.field; tetromino = state.tetromino; rotation = state.rotation;
-                   position = (x-1,y)
-                  } else state
-  | MoveRight -> let (x,y) = state.position in
-                 if fits state.field (x+1) y state.tetromino state.rotation then
-                   {score = state.score; field = state.field; tetromino = state.tetromino; rotation = state.rotation;
-                    position = (x+1,y)
-                   } else state
-  | Rotate -> state
+  | MoveLeft -> 
+     if fits state.field (x-1) y state.tetromino state.rotation then
+       {score = state.score; field = state.field; tetromino = state.tetromino; rotation = state.rotation;
+        position = (x-1,y)
+       } else state
+  | MoveRight -> 
+     if fits state.field (x+1) y state.tetromino state.rotation then
+       {score = state.score; field = state.field; tetromino = state.tetromino; rotation = state.rotation;
+        position = (x+1,y)
+       } else state
+  | Rotate -> let r = right_rotation state.rotation in
+              if fits state.field x y state.tetromino r then
+                {score = state.score; field = state.field; tetromino = state.tetromino; position = (x,y);
+                 rotation = r
+                } else state
   | Drop -> state
   | Tick -> state
 ;;
-
+  

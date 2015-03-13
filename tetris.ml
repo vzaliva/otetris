@@ -104,5 +104,36 @@ let iter2D l w f =
 
 let spawn_position p board_width = (truncate ((float board_width /. 2.) -. (fst p.center)), 0);;
 
-type action =  MoveLeft | MoveRight | Rotate | Drop ;;
+type action =  MoveLeft | MoveRight | Rotate | Drop | Tick;;
+
+let is_cell_empty f (x,y)  =
+  if x>=0 && x<f.width && y>=0 && y<=f.height then
+    match nth f.cells (y*f.width+x) with
+    | Empty -> true
+    | Color _ -> false
+  else
+    false;;
+
+let fits f x y t r =
+  BatList.fold_left (&&) true
+                    (BatList.map ((is_cell_empty f)
+                                  % (rotate (rotation_matrix r) t.center)
+                                  % (xyplus (x,y))) t.geometry);;
+    
+let update_state event state : state=
+  match event with
+  | MoveLeft -> let (x,y) = state.position in
+                if fits state.field (x-1) y state.tetromino state.rotation then
+                  {score = state.score; field = state.field; tetromino = state.tetromino; rotation = state.rotation;
+                   position = (x-1,y)
+                  } else state
+  | MoveRight -> let (x,y) = state.position in
+                 if fits state.field (x+1) y state.tetromino state.rotation then
+                   {score = state.score; field = state.field; tetromino = state.tetromino; rotation = state.rotation;
+                    position = (x+1,y)
+                   } else state
+  | Rotate -> state
+  | Drop -> state
+  | Tick -> state
+;;
 

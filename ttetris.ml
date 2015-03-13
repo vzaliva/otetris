@@ -51,11 +51,13 @@ let rec loop ui state =
         LTerm_ui.draw ui;
         loop ui state
     | LTerm_event.Key{ code = Left } ->
-        LTerm_ui.draw ui;
-        loop ui state
+       state := update_state MoveLeft !state;
+       LTerm_ui.draw ui;
+       loop ui state
     | LTerm_event.Key{ code = Right } ->
-        LTerm_ui.draw ui;
-        loop ui state
+       state := update_state MoveRight !state;
+       LTerm_ui.draw ui;
+       loop ui state
     | LTerm_event.Key{ code = Escape } ->
         return ()
     | ev ->
@@ -75,8 +77,8 @@ let draw ui matrix state =
   let ctx = LTerm_draw.context matrix size in
   LTerm_draw.clear ctx;
   let w = state.field.width and h=state.field.height in
-  LTerm_draw.draw_frame ctx { row1 = -1; col1 = 0; row2 = h+1; col2 = w+2 } LTerm_draw.Heavy;
-  let ctx = LTerm_draw.sub ctx { row1 = 0; col1 = 1; row2 = h; col2 = w+1 } in
+  LTerm_draw.draw_frame ctx { row1 = -1; col1 = 0; row2 = h+1; col2 = w+3 } LTerm_draw.Heavy;
+  let ctx = LTerm_draw.sub ctx { row1 = 0; col1 = 1; row2 = h; col2 = w+2 } in
   iter2D state.field.cells w (draw_cell ctx);
   draw_tetromino ctx state
 

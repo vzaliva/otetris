@@ -103,7 +103,7 @@ let cell_is_empty f (x,y)  =
   | Empty -> true
   | Color _ -> false;;
   
-let cell_in_range f (x,y) = x>=0 && x<f.width && y>=0 && y<=f.height ;;
+let cell_in_range f (x,y) = x>=0 && x<f.width && y>=0 && y<=(f.height-1) ;;
 
 let cell_available f xy = cell_in_range f xy && cell_is_empty f xy ;;
     
@@ -113,7 +113,7 @@ let fits f x y t r =
                                   % (xyplus (x,y))
                                   % (rotate (rotation_matrix r) t.center)) t.geometry);;
     
-let update_state event state : state =
+let rec update_state event state : state =
   let (x,y) = state.position in
   match event with
   | MoveLeft -> 
@@ -132,6 +132,15 @@ let update_state event state : state =
        {score = state.score; field = state.field; tetromino = state.tetromino; position = state.position;
         rotation = r
        } else state
-  | Drop -> state
-  | Tick -> state
+  | Drop -> 
+     if fits state.field x (y+1) state.tetromino state.rotation then
+       update_state Drop {score = state.score; field = state.field; tetromino = state.tetromino; rotation = state.rotation;
+        position = (x,y+1)
+       } else state
+  | Tick ->
+     if fits state.field x (y+1) state.tetromino state.rotation then
+       {score = state.score; field = state.field; tetromino = state.tetromino; rotation = state.rotation;
+        position = (x,y+1)
+       } else state
+                
 

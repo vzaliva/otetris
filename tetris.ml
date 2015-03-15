@@ -71,7 +71,7 @@ let rotate (r:float*float*float*float) (c:float*float) (p:xy) : xy =
   let rx = float x and ry = float y in
   let dx = rx -. xc and dy = ry -. yc in
   (truncate ((dx *. r11 +. dy *. r12)  +. xc),
-   truncate ((dx *. r21 +. dy *. r22)  +. xc));;
+   truncate ((dx *. r21 +. dy *. r22)  +. yc));;
 
 type field = {width:int; height:int; cells:cell list};;
 
@@ -134,8 +134,4 @@ let update_state event state : state =
        } else state
   | Drop -> state
   | Tick -> state
-;;
-  
 
-let t = nth all_tetrominoes 0;;
-BatList.map (rotate (rotation_matrix R0) t.center) t.geometry;;

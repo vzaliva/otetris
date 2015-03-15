@@ -2,11 +2,11 @@
 
 (* Simple text tetris *)
 
-open Batteries;;
-open BatList;;
+open Batteries
+open BatList
 open Tetris
 
-let board_width = 10 and board_height = 22 ;;
+let board_width = 10 and board_height = 22 
 
 open Lwt
 open Lwt_react
@@ -23,7 +23,7 @@ let initial_state : Tetris.state =
    tetromino = p;
    position = spawn_position p board_width;
    rotation = R0;
-  } ;;
+  } 
   
 let term_color_map = function
   | Cyan -> LTerm_style.cyan
@@ -33,15 +33,15 @@ let term_color_map = function
   | Red -> LTerm_style.red
   | Blue -> LTerm_style.lblue
   | Orange -> LTerm_style.lyellow
-;;
+
 
 let cell_color = function
   | Empty -> LTerm_style.black
-  | Color x -> term_color_map x;;
+  | Color x -> term_color_map x
   
 let cell_char = function
   | Empty -> S" "
-  | Color x -> S"#";;
+  | Color x -> S"#"
   
 let rec loop ui state =
   LTerm_ui.wait ui >>= function
@@ -66,14 +66,14 @@ let rec loop ui state =
   | ev ->
      loop ui state
           
-let draw_cell ctx v x y = LTerm_draw.draw_styled ctx y (x+1) (eval [B_bg (cell_color v); (cell_char v); E_fg]);;
+let draw_cell ctx v x y = LTerm_draw.draw_styled ctx y (x+1) (eval [B_bg (cell_color v); (cell_char v); E_fg])
 
 let draw_tetromino ctx state =
   ignore (BatList.map (
               (fun (x,y) -> draw_cell ctx (Color state.tetromino.color) x y)
               % (xyplus state.position)                
               % (rotate (rotation_matrix state.rotation) state.tetromino.center)
-            ) state.tetromino.geometry) ;;
+            ) state.tetromino.geometry) 
   
 let draw ui matrix state =
   let size = LTerm_ui.size ui in

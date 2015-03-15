@@ -23,6 +23,7 @@ let initial_state : Tetris.state =
    tetromino = p;
    position = spawn_position p board_width;
    rotation = R0;
+   over = false;
   } 
   
 let term_color_map = function

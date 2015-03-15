@@ -132,7 +132,7 @@ let rec update_state event state : state =
        {score = state.score; field = state.field; tetromino = state.tetromino; position = state.position;
         rotation = r}
      else state
-  | Drop -> 
+  | Drop ->
      if fits state.field x (y+1) state.tetromino state.rotation then
        update_state Drop {score = state.score; field = state.field; tetromino = state.tetromino; rotation = state.rotation;
                           position = (x,y+1)}

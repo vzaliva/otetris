@@ -139,3 +139,13 @@ let rec update_state event state : state =
        {state with position = (x,y+1)}
      else state (* TODO: emboss in glass; check for endgame. generate new piece *)
 
+let initial_state board_width board_height =
+  let p = pick_random all_tetrominoes in
+  (* let p = nth all_tetrominoes 0 in *)
+  {score = 0;
+   field = make_field board_width board_height;
+   tetromino = p;
+   position = spawn_position p board_width;
+   rotation = R0;
+   over = false;
+  } 

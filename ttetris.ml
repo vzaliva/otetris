@@ -14,18 +14,6 @@ open LTerm_geom
 open LTerm_text
 open LTerm_key
 
-let initial_state : Tetris.state =
-  Random.self_init();
-  let p = pick_random all_tetrominoes in
-  (* let p = nth all_tetrominoes 0 in *)
-  {score = 0;
-   field = make_field board_width board_height;
-   tetromino = p;
-   position = spawn_position p board_width;
-   rotation = R0;
-   over = false;
-  } 
-  
 let term_color_map = function
   | Cyan -> LTerm_style.cyan
   | Yellow -> LTerm_style.yellow
@@ -89,7 +77,8 @@ let draw ui matrix state =
 lwt () =
   lwt term = Lazy.force LTerm.stdout in
 
-  let (state:(Tetris.state ref)) = ref (initial_state) in
+  Random.self_init();
+  let (state:(Tetris.state ref)) = ref (initial_state board_width board_height) in
 
   lwt ui = LTerm_ui.create term (fun matrix size -> draw matrix size !state) in
   try_lwt

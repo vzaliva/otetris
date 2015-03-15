@@ -119,28 +119,27 @@ let rec update_state event state : state =
   | MoveLeft -> 
      if fits state.field (x-1) y state.tetromino state.rotation then
        {score = state.score; field = state.field; tetromino = state.tetromino; rotation = state.rotation;
-        position = (x-1,y)
-       } else state
+        position = (x-1,y)}
+     else state
   | MoveRight -> 
      if fits state.field (x+1) y state.tetromino state.rotation then
        {score = state.score; field = state.field; tetromino = state.tetromino; rotation = state.rotation;
-        position = (x+1,y)
-       } else state
+        position = (x+1,y)}
+     else state
   | Rotate ->
      let r = clockwise_rotation state.rotation in
      if fits state.field x y state.tetromino r then
        {score = state.score; field = state.field; tetromino = state.tetromino; position = state.position;
-        rotation = r
-       } else state
+        rotation = r}
+     else state
   | Drop -> 
      if fits state.field x (y+1) state.tetromino state.rotation then
        update_state Drop {score = state.score; field = state.field; tetromino = state.tetromino; rotation = state.rotation;
-        position = (x,y+1)
-       } else state
+                          position = (x,y+1)}
+     else state  (* TODO: emboss in glass; check for endgame. generate new piece *)
   | Tick ->
      if fits state.field x (y+1) state.tetromino state.rotation then
        {score = state.score; field = state.field; tetromino = state.tetromino; rotation = state.rotation;
-        position = (x,y+1)
-       } else state
-                
+        position = (x,y+1)}
+     else state (* TODO: emboss in glass; check for endgame. generate new piece *)
 

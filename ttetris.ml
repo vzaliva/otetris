@@ -14,6 +14,8 @@ open LTerm_key
 
 (* Game board dimensions *)
 let board_width = 10 and board_height = 22
+(* Using fixed gravity  for now *)
+let gravity = 0.05
 
 let term_color_map = function
   | Cyan -> LTerm_style.cyan
@@ -34,7 +36,7 @@ let cell_char = function
 
 type event_or_tick = LEvent of LTerm_event.t | LTick
 let wait_for_event ui = LTerm_ui.wait ui >>= fun x -> return (LEvent x)
-let wait_for_tick () = Lwt_unix.sleep 0.5 >>= fun () -> return (LTick)
+let wait_for_tick () = Lwt_unix.sleep (gravity_period gravity) >>= fun () -> return (LTick)
 
 let rec loop ui state event_thread tick_thread =
   Lwt.choose [ event_thread; tick_thread ] >>= function

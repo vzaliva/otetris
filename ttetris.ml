@@ -32,7 +32,7 @@ let cell_color = function
   
 let cell_char = function
   | Empty -> S" "
-  | Color x -> S"#"
+  | Color _ -> S"#"
 
 type event_or_tick = LEvent of LTerm_event.t | LTick
 let wait_for_event ui = LTerm_ui.wait ui >>= fun x -> return (LEvent x)
@@ -41,23 +41,23 @@ let wait_for_tick () = Lwt_unix.sleep (gravity_period gravity) >>= fun () -> ret
 let rec loop ui state event_thread tick_thread =
   (* TODO: game over handling *)
   Lwt.choose [ event_thread; tick_thread ] >>= function
-  | LEvent (LTerm_event.Key{ code = Up }) ->
+  | LEvent (LTerm_event.Key {code = Up}) ->
      state := update_state Rotate !state;
      LTerm_ui.draw ui;
      loop ui state (wait_for_event ui) tick_thread
-  | LEvent (LTerm_event.Key{ code = Down }) ->
+  | LEvent (LTerm_event.Key {code = Down}) ->
      state := update_state Drop !state;
      LTerm_ui.draw ui;
      loop ui state (wait_for_event ui) tick_thread
-  | LEvent (LTerm_event.Key{ code = Left }) ->
+  | LEvent (LTerm_event.Key {code = Left}) ->
      state := update_state MoveLeft !state;
      LTerm_ui.draw ui;
      loop ui state (wait_for_event ui) tick_thread
-  | LEvent (LTerm_event.Key{ code = Right }) ->
+  | LEvent (LTerm_event.Key {code = Right}) ->
      state := update_state MoveRight !state;
      LTerm_ui.draw ui;
      loop ui state (wait_for_event ui) tick_thread
-  | LEvent (LTerm_event.Key{ code = Escape }) ->
+  | LEvent (LTerm_event.Key {code = Escape}) ->
      return ()
   | LTick ->
      state := update_state Tick !state;
@@ -86,11 +86,9 @@ let draw ui matrix state =
   draw_tetromino ctx state
 
 lwt () =
-  lwt term = Lazy.force LTerm.stdout in
-
   Random.self_init();
   let (state:(Tetris.state ref)) = ref (initial_state board_width board_height) in
-
+  lwt term = Lazy.force LTerm.stdout in
   lwt ui = LTerm_ui.create term (fun matrix size -> draw matrix size !state) in
   try_lwt
     loop ui state (wait_for_event ui) (wait_for_tick ())

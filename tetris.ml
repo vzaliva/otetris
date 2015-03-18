@@ -9,15 +9,11 @@ http://tetris.wikia.com/wiki/Drop
 let gravity_period g = 1. /. (g *. 60.)
 
 type color =  Cyan  | Yellow  | Purple  | Green  | Red  | Blue  | Orange
-
 type cell = Empty | Color of color
-
 type tetrimino_kind = I | J | L | O | S | T | Z
 
 type xy = (int*int) 
-(* let xy x y = (x,y) *)
 let xyplus a b : xy = let (ax,ay)=a and (bx,by)=b in (ax+bx,ay+by)
-
 let xyeq a b = let (ax,ay)=a and (bx,by)=b in ax=bx && ay=by
 
 type tetrimino = {
@@ -102,18 +98,16 @@ let iter2D l w f =
     else (f (hd l) x y) :: (inter2D' (tl l) f w (if x=w then 0 else x+1) (if x=w then (y+1) else y))
     in inter2D' l f (w-1) 0 0
 
-let spawn_position p board_width = (truncate ((float board_width /. 2.) -. (fst p.center)), 0)
-
 type action =  MoveLeft | MoveRight | Rotate | Drop | Tick
 
-let cell_is_empty state (x,y)  =
-  match nth state.cells (y*state.width+x) with
-  | Empty -> true
-  | Color _ -> false
-                 
-let cell_in_range state (x,y) = x>=0 && x<state.width && y>=0 && y<=(state.height-1) 
-                                                                      
-let cell_available state xy = cell_in_range state xy && cell_is_empty state xy 
+let cell_available state xy =
+  let cell_is_empty state (x,y)  =
+    (match nth state.cells (y*state.width+x) with
+     | Empty -> true
+     | _ -> false)
+    and
+      cell_in_range state (x,y) = x>=0 && x<state.width && y>=0 && y<=(state.height-1) in
+  cell_in_range state xy && cell_is_empty state xy 
     
 let fits state = 
   BatList.fold_left (&&) true
@@ -134,6 +128,8 @@ let emboss state =
                          else v))
   }
 
+let spawn_position p board_width = (truncate ((float board_width /. 2.) -. (fst p.center)), 0)
+
 let new_pice_or_game_over state =
   let p = pick_random all_tetrominoes in
   let (x,y) = spawn_position p state.width in
@@ -142,6 +138,18 @@ let new_pice_or_game_over state =
     newstate
   else
     {state with over=true}
+
+let initial_state board_width board_height =
+  let p = pick_random all_tetrominoes in
+  {score = 0;
+   width = board_width;
+   height = board_height;
+   cells = make (board_width*board_height) Empty;
+   tetromino = p;
+   position = spawn_position p board_width;
+   rotation = R0;
+   over = false;
+  }
 
 let rec update_state event state : state =
   let (x,y) = state.position in
@@ -159,15 +167,4 @@ let rec update_state event state : state =
      if fits newstate then newstate
      else (new_pice_or_game_over % emboss) state
 
-let initial_state board_width board_height =
-  let p = pick_random all_tetrominoes in
-  {score = 0;
-   width = board_width;
-   height = board_height;
-   cells = make (board_width*board_height) Empty;
-   tetromino = p;
-   position = spawn_position p board_width;
-   rotation = R0;
-   over = false;
-  }
 

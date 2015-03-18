@@ -82,17 +82,14 @@ let rotate (r:float*float*float*float) (c:float*float) (p:xy) : xy =
   (truncate ((dx *. r11 +. dy *. r12)  +. xc),
    truncate ((dx *. r21 +. dy *. r22)  +. yc))
 
-type field = {width:int; height:int; cells:cell list}
-
-let make_field w h : field
-  = {width=w; height=h; cells = make (w*h) Empty }
-
 (* TODO: use http://tetris.wikia.com/wiki/Random_Generator *)  
 let pick_random l  =  nth l (Random.int (length l))
                          
 type state = {
     score: int;
-    field: field;
+    width: int;
+    height: int;
+    cells: cell list;
     tetromino: tetrimino;
     position: xy;
     rotation: rotation;
@@ -109,71 +106,70 @@ let spawn_position p board_width = (truncate ((float board_width /. 2.) -. (fst 
 
 type action =  MoveLeft | MoveRight | Rotate | Drop | Tick
 
-let cell_is_empty f (x,y)  =
-  match nth f.cells (y*f.width+x) with
+let cell_is_empty state (x,y)  =
+  match nth state.cells (y*state.width+x) with
   | Empty -> true
   | Color _ -> false
-  
-let cell_in_range f (x,y) = x>=0 && x<f.width && y>=0 && y<=(f.height-1) 
-
-let cell_available f xy = cell_in_range f xy && cell_is_empty f xy 
+                 
+let cell_in_range state (x,y) = x>=0 && x<state.width && y>=0 && y<=(state.height-1) 
+                                                                      
+let cell_available state xy = cell_in_range state xy && cell_is_empty state xy 
     
-let fits f x y t r =
+let fits state = 
   BatList.fold_left (&&) true
-                    (BatList.map ((cell_available f)
-                                  % (xyplus (x,y))
-                                  % (rotate (rotation_matrix r) t.center)) t.geometry)
+                    (BatList.map ((cell_available state)
+                                  % (xyplus state.position)
+                                  % (rotate (rotation_matrix state.rotation) state.tetromino.center))
+                                 state.tetromino.geometry)
 
 let emboss state =
   let c = BatList.map
             ((xyplus state.position) % (rotate (rotation_matrix state.rotation) state.tetromino.center))
             state.tetromino.geometry in
-  {state with field =
-                {state.field with cells=
-                                    (iter2D state.field.cells state.field.width
-                                            (fun v px py ->
-                                             if exists (xyeq (px,py)) c
-                                             then Color state.tetromino.color
-                                             else v))
-                }}
+  {state with cells=
+                (iter2D state.cells state.width
+                        (fun v px py ->
+                         if exists (xyeq (px,py)) c
+                         then Color state.tetromino.color
+                         else v))
+  }
 
 let new_pice_or_game_over state =
   let p = pick_random all_tetrominoes in
-  let (x,y) = spawn_position p state.field.width in
-  if fits state.field x y state.tetromino R0 then
-    {state with tetromino=p; position=(x,y); rotation=R0}
+  let (x,y) = spawn_position p state.width in
+  let newstate = {state with tetromino=p; position=(x,y); rotation=R0} in
+  if fits newstate then
+    newstate
   else
     {state with over=true}
 
 let rec update_state event state : state =
   let (x,y) = state.position in
   match event with
-  | MoveLeft -> 
-     if fits state.field (x-1) y state.tetromino state.rotation then
-       {state with position = (x-1,y)}
-     else state
-  | MoveRight -> 
-     if fits state.field (x+1) y state.tetromino state.rotation then
-       {state with position = (x+1,y)}
-     else state
+  | MoveLeft ->
+     let newstate = {state with position = (x-1,y)} in
+     if fits newstate then newstate else state
+  | MoveRight ->
+     let newstate = {state with position = (x+1,y)} in 
+     if fits newstate then newstate else state
   | Rotate ->
-     let r = clockwise_rotation state.rotation in
-     if fits state.field x y state.tetromino r then
-       {state with rotation = r}
-     else state
+     let newstate = {state with rotation = clockwise_rotation state.rotation} in 
+     if fits newstate then newstate else state
   | Drop ->
-     if fits state.field x (y+1) state.tetromino state.rotation then
-       update_state Drop {state with position = (x,y+1)}
+     let newstate = {state with position = (x,y+1)} in
+     if fits newstate then update_state Drop newstate
      else (new_pice_or_game_over % emboss) state 
   | Tick ->
-     if fits state.field x (y+1) state.tetromino state.rotation then
-       {state with position = (x,y+1)}
+     let newstate = {state with position = (x,y+1)} in
+     if fits newstate then newstate
      else (new_pice_or_game_over % emboss) state
 
 let initial_state board_width board_height =
   let p = pick_random all_tetrominoes in
   {score = 0;
-   field = make_field board_width board_height;
+   width = board_width;
+   height = board_height;
+   cells = make (board_width*board_height) Empty;
    tetromino = p;
    position = spawn_position p board_width;
    rotation = R0;

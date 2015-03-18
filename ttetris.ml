@@ -6,13 +6,14 @@ open Batteries
 open BatList
 open Tetris
 
-let board_width = 10 and board_height = 22 
-
 open Lwt
 open Lwt_react
 open LTerm_geom
 open LTerm_text
 open LTerm_key
+
+(* Game board dimensions *)
+let board_width = 10 and board_height = 22
 
 let term_color_map = function
   | Cyan -> LTerm_style.cyan
@@ -23,7 +24,6 @@ let term_color_map = function
   | Blue -> LTerm_style.lblue
   | Orange -> LTerm_style.lyellow
 
-
 let cell_color = function
   | Empty -> LTerm_style.black
   | Color x -> term_color_map x
@@ -31,7 +31,6 @@ let cell_color = function
 let cell_char = function
   | Empty -> S" "
   | Color x -> S"#"
-
 
 type event_or_tick = LEvent of LTerm_event.t | LTick
 let wait_for_event ui = LTerm_ui.wait ui >>= fun x -> return (LEvent x)

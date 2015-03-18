@@ -18,6 +18,8 @@ type xy = (int*int)
 (* let xy x y = (x,y) *)
 let xyplus a b : xy = let (ax,ay)=a and (bx,by)=b in (ax+bx,ay+by)
 
+let xyeq a b = let (ax,ay)=a and (bx,by)=b in ax=bx && ay=by
+
 type tetrimino = {
     kind: tetrimino_kind;
     geometry: xy list;
@@ -99,8 +101,8 @@ type state = {
   
 let iter2D l w f =
   let rec inter2D' l f w x y=
-    if is_empty l then ()
-    else ((f (hd l) x y) ; inter2D' (tl l) f w (if x=w then 0 else x+1) (if x=w then (y+1) else y))
+    if is_empty l then []
+    else (f (hd l) x y) :: (inter2D' (tl l) f w (if x=w then 0 else x+1) (if x=w then (y+1) else y))
     in inter2D' l f (w-1) 0 0
 
 let spawn_position p board_width = (truncate ((float board_width /. 2.) -. (fst p.center)), 0)
@@ -121,7 +123,28 @@ let fits f x y t r =
                     (BatList.map ((cell_available f)
                                   % (xyplus (x,y))
                                   % (rotate (rotation_matrix r) t.center)) t.geometry)
-    
+
+let emboss state =
+  let c = BatList.map
+            ((xyplus state.position) % (rotate (rotation_matrix state.rotation) state.tetromino.center))
+            state.tetromino.geometry in
+  {state with field =
+                {state.field with cells=
+                                    (iter2D state.field.cells state.field.width
+                                            (fun v px py ->
+                                             if exists (xyeq (px,py)) c
+                                             then Color state.tetromino.color
+                                             else v))
+                }}
+
+let new_pice_or_game_over state =
+  let p = pick_random all_tetrominoes in
+  let (x,y) = spawn_position p state.field.width in
+  if fits state.field x y state.tetromino R0 then
+    {state with tetromino=p; position=(x,y); rotation=R0}
+  else
+    {state with over=true}
+
 let rec update_state event state : state =
   let (x,y) = state.position in
   match event with
@@ -141,19 +164,19 @@ let rec update_state event state : state =
   | Drop ->
      if fits state.field x (y+1) state.tetromino state.rotation then
        update_state Drop {state with position = (x,y+1)}
-     else state  (* TODO: emboss in glass; check for endgame. generate new piece *)
+     else (new_pice_or_game_over % emboss) state 
   | Tick ->
      if fits state.field x (y+1) state.tetromino state.rotation then
        {state with position = (x,y+1)}
-     else state (* TODO: emboss in glass; check for endgame. generate new piece *)
+     else (new_pice_or_game_over % emboss) state
 
 let initial_state board_width board_height =
   let p = pick_random all_tetrominoes in
-  (* let p = nth all_tetrominoes 0 in *)
   {score = 0;
    field = make_field board_width board_height;
    tetromino = p;
    position = spawn_position p board_width;
    rotation = R0;
    over = false;
-  } 
+  }
+

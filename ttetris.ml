@@ -39,6 +39,7 @@ let wait_for_event ui = LTerm_ui.wait ui >>= fun x -> return (LEvent x)
 let wait_for_tick () = Lwt_unix.sleep (gravity_period gravity) >>= fun () -> return (LTick)
 
 let rec loop ui state event_thread tick_thread =
+  (* TODO: game over handling *)
   Lwt.choose [ event_thread; tick_thread ] >>= function
   | LEvent (LTerm_event.Key{ code = Up }) ->
      state := update_state Rotate !state;
@@ -81,7 +82,7 @@ let draw ui matrix state =
   let w = state.field.width and h=state.field.height in
   LTerm_draw.draw_frame ctx { row1 = -1; col1 = 0; row2 = h+1; col2 = w+3 } LTerm_draw.Heavy;
   let ctx = LTerm_draw.sub ctx { row1 = 0; col1 = 1; row2 = h; col2 = w+2 } in
-  iter2D state.field.cells w (draw_cell ctx);
+  ignore (iter2D state.field.cells w (draw_cell ctx));
   draw_tetromino ctx state
 
 lwt () =

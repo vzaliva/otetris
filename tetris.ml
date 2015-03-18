@@ -145,16 +145,11 @@ let new_pice_or_game_over state =
 
 let rec update_state event state : state =
   let (x,y) = state.position in
+  let try_state s = if fits s then s else state in
   match event with
-  | MoveLeft ->
-     let newstate = {state with position = (x-1,y)} in
-     if fits newstate then newstate else state
-  | MoveRight ->
-     let newstate = {state with position = (x+1,y)} in 
-     if fits newstate then newstate else state
-  | Rotate ->
-     let newstate = {state with rotation = clockwise_rotation state.rotation} in 
-     if fits newstate then newstate else state
+  | MoveLeft -> try_state {state with position = (x-1,y)}
+  | MoveRight -> try_state {state with position = (x+1,y)}
+  | Rotate -> try_state {state with rotation = clockwise_rotation state.rotation}
   | Drop ->
      let newstate = {state with position = (x,y+1)} in
      if fits newstate then update_state Drop newstate

@@ -31,29 +31,39 @@ let cell_color = function
 let cell_char = function
   | Empty -> S" "
   | Color x -> S"#"
-  
-let rec loop ui state =
-  LTerm_ui.wait ui >>= function
-  | LTerm_event.Key{ code = Up } ->
+
+
+type event_or_tick = LEvent of LTerm_event.t | LTick
+let wait_for_event ui = LTerm_ui.wait ui >>= fun x -> return (LEvent x)
+let wait_for_tick () = Lwt_unix.sleep 0.5 >>= fun () -> return (LTick)
+
+let rec loop ui state event_thread tick_thread =
+  Lwt.choose [ event_thread; tick_thread ]
+  >>= function
+  | LEvent (LTerm_event.Key{ code = Up }) ->
      state := update_state Rotate !state;
      LTerm_ui.draw ui;
-     loop ui state
-  | LTerm_event.Key{ code = Down } ->
+     loop ui state (wait_for_event ui) tick_thread
+  | LEvent (LTerm_event.Key{ code = Down }) ->
      state := update_state Drop !state;
      LTerm_ui.draw ui;
-     loop ui state
-  | LTerm_event.Key{ code = Left } ->
+     loop ui state (wait_for_event ui) tick_thread
+  | LEvent (LTerm_event.Key{ code = Left }) ->
      state := update_state MoveLeft !state;
      LTerm_ui.draw ui;
-     loop ui state
-  | LTerm_event.Key{ code = Right } ->
+     loop ui state (wait_for_event ui) tick_thread
+  | LEvent (LTerm_event.Key{ code = Right }) ->
      state := update_state MoveRight !state;
      LTerm_ui.draw ui;
-     loop ui state
-  | LTerm_event.Key{ code = Escape } ->
+     loop ui state (wait_for_event ui) tick_thread
+  | LEvent (LTerm_event.Key{ code = Escape }) ->
      return ()
+  | LTick ->
+     state := update_state Tick !state;
+     LTerm_ui.draw ui;
+     loop ui state event_thread (wait_for_tick ())
   | ev ->
-     loop ui state
+     loop ui state (wait_for_event ui) tick_thread
           
 let draw_cell ctx v x y = LTerm_draw.draw_styled ctx y (x+1) (eval [B_bg (cell_color v); (cell_char v); E_fg])
 
@@ -82,6 +92,6 @@ lwt () =
 
   lwt ui = LTerm_ui.create term (fun matrix size -> draw matrix size !state) in
   try_lwt
-    loop ui state
+    loop ui state (wait_for_event ui) (wait_for_tick ())
   finally
     LTerm_ui.quit ui

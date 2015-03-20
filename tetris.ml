@@ -14,7 +14,6 @@ type tetrimino_kind = I | J | L | O | S | T | Z
 
 type xy = (int*int) 
 let xyplus a b : xy = let (ax,ay)=a and (bx,by)=b in (ax+bx,ay+by)
-let xyeq a b = let (ax,ay)=a and (bx,by)=b in ax=bx && ay=by
 
 type tetrimino = {
     kind: tetrimino_kind;
@@ -84,9 +83,13 @@ let rotate (r:float*float*float*float) (c:float*float) (p:xy) : xy =
   (truncate ((dx *. r11 +. dy *. r12)  +. xc),
    truncate ((dx *. r21 +. dy *. r22)  +. yc))
 
-(* TODO: use http://tetris.wikia.com/wiki/Random_Generator *)  
-let pick_random l  =  nth l (Random.int (length l))
-                         
+(* Shuffle immutable list. Idea from:
+http://stackoverflow.com/questions/15095541/how-to-shuffle-list-in-on-in-ocaml *)    
+let list_shuffle d =
+    let nd = List.map (fun c -> (Random.bits (), c)) d in
+    let sond = List.sort Pervasives.compare nd in
+    List.map snd sond
+
 type state = {
     level: int;
     score: int;
@@ -96,7 +99,8 @@ type state = {
     tetromino: tetrimino;
     position: xy;
     rotation: rotation;
-    over: bool
+    over: bool;
+    seq: tetrimino list;
   } 
   
 let iter2D l w f =
@@ -107,13 +111,13 @@ let iter2D l w f =
 
 type action =  MoveLeft | MoveRight | RotateCw | RotateCCw | Drop | Tick
 
-let is_empty = function
+let is_empty_cell = function
   | Empty -> true
   | _ -> false
 
 let cell_available state (x,y) =
   (x>=0 && x<state.width && y>=0 && y<=(state.height-1)) &&
-  is_empty (nth state.cells (y*state.width+x))
+  is_empty_cell (nth state.cells (y*state.width+x))
     
 let fits state = 
   BatList.fold_left (&&) true
@@ -129,24 +133,26 @@ let emboss state =
   {state with cells=
                 (iter2D state.cells state.width
                         (fun v px py ->
-                         if exists (xyeq (px,py)) c
+                         if exists ((=) (px,py)) c
                          then Color state.tetromino.color
                          else v))
   }
 
 let spawn_position p board_width = (truncate ((float board_width /. 2.) -. (fst p.center)), 0)
 
-let new_pice_or_game_over state =
-  let p = pick_random all_tetrominoes in
+let new_pice_or_game_over state =  
+  let nseq = if is_empty state.seq then list_shuffle all_tetrominoes else state.seq in
+  let p = hd nseq in
   let (x,y) = spawn_position p state.width in
-  let newstate = {state with tetromino=p; position=(x,y); rotation=R0} in
+  let newstate = {state with tetromino=p; position=(x,y); rotation=R0; seq = tl nseq} in
   if fits newstate then
     newstate
   else
     {state with over=true}
 
 let initial_state board_width board_height =
-  let p = pick_random all_tetrominoes in
+  let seq = list_shuffle all_tetrominoes in
+  let p = hd seq in
   {level = 0;
    score = 0;
    width = board_width;
@@ -156,15 +162,15 @@ let initial_state board_width board_height =
    position = spawn_position p board_width;
    rotation = R0;
    over = false;
+   seq = tl seq
   }
 
 let rec is_full_line = function
   | [] -> true
-  | x::xs -> if is_empty x then false else is_full_line xs
+  | x::xs -> if is_empty_cell x then false else is_full_line xs
 
-(* Calculates how many points user should be awarded based on
-number of cleared lines and current level.
-http://tetris.wikia.com/wiki/Scoring *)
+(* Calculate how many points user should be awarded based on
+number of cleared lines and current level. *)
 let scrore_update nlines level = match nlines with
   | 0 -> 0
   | 1 ->  40 * (level + 1)

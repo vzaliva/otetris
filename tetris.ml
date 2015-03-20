@@ -88,6 +88,7 @@ let rotate (r:float*float*float*float) (c:float*float) (p:xy) : xy =
 let pick_random l  =  nth l (Random.int (length l))
                          
 type state = {
+    level: int;
     score: int;
     width: int;
     height: int;
@@ -146,7 +147,8 @@ let new_pice_or_game_over state =
 
 let initial_state board_width board_height =
   let p = pick_random all_tetrominoes in
-  {score = 0;
+  {level = 0;
+   score = 0;
    width = board_width;
    height = board_height;
    cells = make (board_width*board_height) Empty;
@@ -160,12 +162,26 @@ let rec is_full_line = function
   | [] -> true
   | x::xs -> if is_empty x then false else is_full_line xs
 
+(* Calculates how many points user should be awarded based on
+number of cleared lines and current level.
+http://tetris.wikia.com/wiki/Scoring *)
+let scrore_update nlines level = match nlines with
+  | 0 -> 0
+  | 1 ->  40 * (level + 1)
+  | 2 -> 100 * (level + 1)
+  | 3 -> 300 * (level + 1)
+  | 4 -> 1200 * (level + 1)
+  | _ -> invalid_arg "impossibe # lines cleared"
+
 let clear_lines state =
   let lines = ntake state.width state.cells in
-  let nlines = filter (not % is_full_line) lines in
-  let dropped = (length lines) - (length nlines) in
+  let olines = filter (not % is_full_line) lines in
+  let dropped = (length lines) - (length olines) in
   let extra = make (dropped*state.width) Empty in
-  {state with cells=append extra (flatten nlines)} (*TODO: score *)
+  {state with
+    cells=append extra (flatten olines);
+    score = state.score + (scrore_update dropped state.level)
+  }
     
 let rec update_state event state : state =
   let (x,y) = state.position in

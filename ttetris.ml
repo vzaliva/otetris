@@ -12,6 +12,7 @@ open LTerm_geom
 open LTerm_text
 open LTerm_key
 
+
 (* Game board dimensions *)
 let board_width = 10 and board_height = 22
 (* Using fixed gravity  for now *)
@@ -42,10 +43,14 @@ let rec loop ui state event_thread tick_thread =
   (* TODO: game over handling *)
   Lwt.choose [ event_thread; tick_thread ] >>= function
   | LEvent (LTerm_event.Key {code = Up}) ->
-     state := update_state Rotate !state;
+     state := update_state RotateCw !state;
      LTerm_ui.draw ui;
      loop ui state (wait_for_event ui) tick_thread
   | LEvent (LTerm_event.Key {code = Down}) ->
+     state := update_state RotateCCw !state;
+     LTerm_ui.draw ui;
+     loop ui state (wait_for_event ui) tick_thread
+  | LEvent (LTerm_event.Key {code = Char uspace}) ->
      state := update_state Drop !state;
      LTerm_ui.draw ui;
      loop ui state (wait_for_event ui) tick_thread

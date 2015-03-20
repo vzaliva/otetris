@@ -65,12 +65,18 @@ let rotation_matrix = function
   | R180 -> (-1.,0.,0.,-1.)
   | R270 -> (0.,1.,-1.,0.)
 
-let clockwise_rotation = function  
+let clockwise_rotation = function
   | R0 -> R90
   | R90 -> R180
   | R180 -> R270
   | R270 -> R0
-  
+
+let counter_clockwise_rotation = function
+  | R90 -> R0
+  | R180 -> R90
+  | R270 -> R180
+  | R0 -> R270
+
 let rotate (r:float*float*float*float) (c:float*float) (p:xy) : xy =
   let (xc,yc) = c and (x,y) = p and (r11,r12,r21,r22) = r in
   let rx = float x and ry = float y in
@@ -98,7 +104,7 @@ let iter2D l w f =
     else (f (hd l) x y) :: (inter2D' (tl l) f w (if x=w then 0 else x+1) (if x=w then (y+1) else y))
     in inter2D' l f (w-1) 0 0
 
-type action =  MoveLeft | MoveRight | Rotate | Drop | Tick
+type action =  MoveLeft | MoveRight | RotateCw | RotateCCw | Drop | Tick
 
 let cell_available state xy =
   let cell_is_empty state (x,y)  =
@@ -157,7 +163,8 @@ let rec update_state event state : state =
   match event with
   | MoveLeft -> try_state {state with position = (x-1,y)}
   | MoveRight -> try_state {state with position = (x+1,y)}
-  | Rotate -> try_state {state with rotation = clockwise_rotation state.rotation}
+  | RotateCw -> try_state {state with rotation = clockwise_rotation state.rotation}
+  | RotateCCw -> try_state {state with rotation = counter_clockwise_rotation state.rotation}
   | Drop ->
      let newstate = {state with position = (x,y+1)} in
      if fits newstate then update_state Drop newstate

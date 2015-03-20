@@ -1,5 +1,5 @@
-open Batteries;;
-open BatList;;
+open Batteries
+open BatList
 
 
 (* Conversion between G and tick period (in seconds)
@@ -106,14 +106,13 @@ let iter2D l w f =
 
 type action =  MoveLeft | MoveRight | RotateCw | RotateCCw | Drop | Tick
 
-let cell_available state xy =
-  let cell_is_empty state (x,y)  =
-    (match nth state.cells (y*state.width+x) with
-     | Empty -> true
-     | _ -> false)
-    and
-      cell_in_range state (x,y) = x>=0 && x<state.width && y>=0 && y<=(state.height-1) in
-  cell_in_range state xy && cell_is_empty state xy 
+let is_empty = function
+  | Empty -> true
+  | _ -> false
+
+let cell_available state (x,y) =
+  (x>=0 && x<state.width && y>=0 && y<=(state.height-1)) &&
+  is_empty (nth state.cells (y*state.width+x))
     
 let fits state = 
   BatList.fold_left (&&) true
@@ -157,6 +156,17 @@ let initial_state board_width board_height =
    over = false;
   }
 
+let rec is_full_line = function
+  | [] -> true
+  | x::xs -> if is_empty x then false else is_full_line xs
+
+let clear_lines state =
+  let lines = ntake state.width state.cells in
+  let nlines = filter (not % is_full_line) lines in
+  let dropped = (length lines) - (length nlines) in
+  let extra = make (dropped*state.width) Empty in
+  append extra (flatten nlines)
+    
 let rec update_state event state : state =
   let (x,y) = state.position in
   let try_state s = if fits s then s else state in

@@ -81,7 +81,7 @@ let draw_cell ctx v x y = LTerm_draw.draw_styled ctx y (x+1) (eval [B_bg (cell_c
 
 let draw_tetromino ctx state =
   ignore (BatList.map (
-              (fun (x,y) -> draw_cell ctx (Color state.tetromino.color) x y)
+              (fun (x, y) -> draw_cell ctx (Color state.tetromino.color) x y)
               % (xyplus state.position)                
               % (rotate (rotation_matrix state.rotation) state.tetromino.center)
             ) state.tetromino.geometry) 

@@ -109,7 +109,7 @@ let iter2D l w f =
     else (f (hd l) x y) :: (inter2D' (tl l) f w (if x=w then 0 else x+1) (if x=w then (y+1) else y))
     in inter2D' l f (w-1) 0 0
 
-type action =  MoveLeft | MoveRight | RotateCw | RotateCCw | Drop | Tick
+type action =  MoveLeft | MoveRight | RotateCw | RotateCCw | HardDrop | Tick
 
 let is_empty_cell = function
   | Empty -> true
@@ -197,9 +197,9 @@ let rec update_state event state : state =
   | MoveRight -> try_state {state with position = (x+1,y)}
   | RotateCw -> try_state {state with rotation = clockwise_rotation state.rotation}
   | RotateCCw -> try_state {state with rotation = counter_clockwise_rotation state.rotation}
-  | Drop ->
+  | HardDrop ->
      let newstate = {state with position = (x,y+1); score=state.score+1} in
-     if fits newstate then update_state Drop newstate
+     if fits newstate then update_state HardDrop newstate
      else (new_pice_or_game_over % clear_lines % emboss) state 
   | Tick ->
      let newstate = {state with position = (x,y+1)} in

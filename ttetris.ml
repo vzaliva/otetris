@@ -56,7 +56,7 @@ let rec loop ui state event_thread tick_thread =
      LTerm_ui.draw ui;
      loop ui state (wait_for_event ui) tick_thread
   | LEvent (LTerm_event.Key {code = Char _}) ->
-     state := if cstate.over then rstate else update_state Drop cstate;
+     state := if cstate.over then rstate else update_state HardDrop cstate;
      LTerm_ui.draw ui;
      loop ui state (wait_for_event ui) tick_thread
   | LEvent (LTerm_event.Key {code = Left}) ->

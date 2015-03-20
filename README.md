@@ -24,7 +24,7 @@ If you feel nostalgic, you you should try to play using this terminal emulator:
 
 https://github.com/Swordfish90/cool-retro-term
 
-For example chose IBM 3278 more and make sure your font is scaled down
+For example chose IBM 3278 mode and make sure your font is scaled down
 to 50% so it would allow 80 columns and 25 rows.
 
 ### TODO

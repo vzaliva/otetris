@@ -11,7 +11,10 @@ open Lwt_react
 open LTerm_geom
 open LTerm_text
 open LTerm_key
+open LTerm_style
 
+open CamomileLibraryDyn.Camomile
+       
 
 (* Game board dimensions *)
 let board_width = 10 and board_height = 22
@@ -19,16 +22,16 @@ let board_width = 10 and board_height = 22
 let gravity = 0.05
 
 let term_color_map = function
-  | Cyan -> LTerm_style.cyan
-  | Yellow -> LTerm_style.yellow
-  | Purple -> LTerm_style.lred
-  | Green -> LTerm_style.green
-  | Red -> LTerm_style.red
-  | Blue -> LTerm_style.lblue
-  | Orange -> LTerm_style.lyellow
+  | Cyan -> cyan
+  | Yellow -> yellow
+  | Purple -> lred
+  | Green -> green
+  | Red -> red
+  | Blue -> lblue
+  | Orange -> lyellow
 
 let cell_color = function
-  | Empty -> LTerm_style.black
+  | Empty -> black
   | Color x -> term_color_map x
   
 let cell_char = function
@@ -50,7 +53,7 @@ let rec loop ui state event_thread tick_thread =
      state := update_state RotateCCw !state;
      LTerm_ui.draw ui;
      loop ui state (wait_for_event ui) tick_thread
-  | LEvent (LTerm_event.Key {code = Char uspace}) ->
+  | LEvent (LTerm_event.Key {code = Char _}) ->
      state := update_state Drop !state;
      LTerm_ui.draw ui;
      loop ui state (wait_for_event ui) tick_thread
@@ -88,7 +91,22 @@ let draw ui matrix state =
   LTerm_draw.draw_frame ctx { row1 = -1; col1 = 0; row2 = h+1; col2 = w+3 } LTerm_draw.Heavy;
   let ctx = LTerm_draw.sub ctx { row1 = 0; col1 = 1; row2 = h; col2 = w+2 } in
   ignore (iter2D state.cells w (draw_cell ctx));
-  draw_tetromino ctx state
+  if (state.over) then
+    let my = state.height/2 in
+    let mctx = LTerm_draw.sub ctx { row1 = my-1; col1 = 0; row2 = my+2; col2 = w+1 } in
+    let bst = {
+        bold=Some true;
+        underline=None;
+        blink=Some true;
+        reverse=Some true;
+        foreground=Some LTerm_style.red;
+        background=Some LTerm_style.black;
+      } in 
+    LTerm_draw.fill mctx ?style:(Some bst) (UChar.of_char '*');
+    LTerm_draw.draw_frame mctx { row1 = 0; col1 = 0; row2 = 3; col2 = w+1} LTerm_draw.Heavy;
+    LTerm_draw.draw_styled mctx 1 1 (eval [B_fg LTerm_style.red; S"Game over"; E_fg])
+  else
+    draw_tetromino ctx state
 
 lwt () =
   Random.self_init();

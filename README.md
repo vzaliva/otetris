@@ -29,7 +29,7 @@ to 50% so it would allow 80 columns and 25 rows.
 
 ### TODO
 
-The following features are implmented yet:
+The following features are not implmented yet:
 
 1. Wall kicks
 2. Soft Drop

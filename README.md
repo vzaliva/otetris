@@ -20,7 +20,7 @@ designed for efficiency but rather as OCaml learning excericse.
 2. http://batteries.forge.ocamlcore.org/  
 
 ### MIsc
-If you feel nostalgic, you you should try to play using this terminal emulator:
+If you feel nostalgic, you should try to play using this terminal emulator:
 
 https://github.com/Swordfish90/cool-retro-term
 
@@ -38,8 +38,6 @@ The following features are not implmented yet:
 5. Lock delay (but perhaps we have an implicit one due to fixed timer)
 6. Optional display of next-coming tetrominoes
 7. Optional ghost (shadow) piece display
-
-(feel free to add yourself!)
 
 ### Author
 Vadim Zaliva lord@crocodile.org

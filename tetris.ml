@@ -165,7 +165,7 @@ let clear_lines state =
   let nlines = filter (not % is_full_line) lines in
   let dropped = (length lines) - (length nlines) in
   let extra = make (dropped*state.width) Empty in
-  append extra (flatten nlines)
+  {state with cells=append extra (flatten nlines)} (*TODO: score *)
     
 let rec update_state event state : state =
   let (x,y) = state.position in
@@ -178,10 +178,10 @@ let rec update_state event state : state =
   | Drop ->
      let newstate = {state with position = (x,y+1)} in
      if fits newstate then update_state Drop newstate
-     else (new_pice_or_game_over % emboss) state 
+     else (new_pice_or_game_over % clear_lines % emboss) state 
   | Tick ->
      let newstate = {state with position = (x,y+1)} in
      if fits newstate then newstate
-     else (new_pice_or_game_over % emboss) state
+     else (new_pice_or_game_over % clear_lines % emboss) state
 
 

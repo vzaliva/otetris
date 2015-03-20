@@ -1,5 +1,10 @@
 # OCaml Tetris
 
+Simple console (text mode) Tetris written in OCaml language.
+
+![Alt text](/screenshot.png?raw=true "Screenshot")
+
+
 Tetris game model is followig Tetris Guidelines from http://tetris.wikia.com/
 
 1. "Super Rotation System": http://tetris.wikia.com/wiki/SRS

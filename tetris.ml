@@ -198,7 +198,7 @@ let rec update_state event state : state =
   | RotateCw -> try_state {state with rotation = clockwise_rotation state.rotation}
   | RotateCCw -> try_state {state with rotation = counter_clockwise_rotation state.rotation}
   | Drop ->
-     let newstate = {state with position = (x,y+1)} in
+     let newstate = {state with position = (x,y+1); score=state.score+1} in
      if fits newstate then update_state Drop newstate
      else (new_pice_or_game_over % clear_lines % emboss) state 
   | Tick ->

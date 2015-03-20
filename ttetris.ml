@@ -99,12 +99,12 @@ let draw ui matrix state =
         underline=None;
         blink=Some true;
         reverse=Some true;
-        foreground=Some LTerm_style.red;
-        background=Some LTerm_style.black;
+        foreground=Some red;
+        background=Some black;
       } in 
     LTerm_draw.fill mctx ?style:(Some bst) (UChar.of_char '*');
     LTerm_draw.draw_frame mctx { row1 = 0; col1 = 0; row2 = 3; col2 = w+1} LTerm_draw.Heavy;
-    LTerm_draw.draw_styled mctx 1 1 (eval [B_fg LTerm_style.red; S"Game over"; E_fg])
+    LTerm_draw.draw_styled mctx 1 1 (eval [B_fg red; S"Game over"; E_fg])
   else
     draw_tetromino ctx state
 

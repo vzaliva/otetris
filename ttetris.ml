@@ -90,26 +90,46 @@ let draw ui matrix state =
   let size = LTerm_ui.size ui in
   let ctx = LTerm_draw.context matrix size in
   LTerm_draw.clear ctx;
-  let w = state.width and h=state.height in
-  LTerm_draw.draw_frame ctx { row1 = -1; col1 = 0; row2 = h+1; col2 = w+3 } LTerm_draw.Heavy;
-  let ctx = LTerm_draw.sub ctx { row1 = 0; col1 = 1; row2 = h; col2 = w+2 } in
-  ignore (iter2D state.cells w (draw_cell ctx));
-  if (state.over) then
-    let my = state.height/2 in
-    let mctx = LTerm_draw.sub ctx { row1 = my-1; col1 = 0; row2 = my+2; col2 = w+1 } in
-    let bst = {
-        bold=Some true;
-        underline=None;
-        blink=Some true;
-        reverse=Some true;
-        foreground=Some red;
-        background=Some black;
-      } in 
-    LTerm_draw.fill mctx ?style:(Some bst) (UChar.of_char '*');
-    LTerm_draw.draw_frame mctx { row1 = 0; col1 = 0; row2 = 3; col2 = w+1} LTerm_draw.Heavy;
-    LTerm_draw.draw_styled mctx 1 1 (eval [B_fg red; S"Game over"; E_fg])
-  else
-    draw_tetromino ctx state
+  let draw_legend =
+    let lctx = LTerm_draw.sub ctx { row1 = 0; col1 = state.width+6; row2 = state.height; col2 = 60 } in
+    LTerm_draw.draw_styled lctx 1 0 (eval [B_fg cyan; S (Printf.sprintf "Score: %u" state.score); E_fg]);
+    LTerm_draw.draw_styled lctx 2 0 (eval [B_fg lblue; S (Printf.sprintf "Level: %u" state.level); E_fg]);
+
+    LTerm_draw.draw_styled lctx 5 0 (eval [B_fg green; S"Controls:"; E_fg]);
+    LTerm_draw.draw_styled lctx 6 2 (eval [B_fg yellow; S"<-, ->"; E_fg]);
+    LTerm_draw.draw_styled lctx 6 12 (eval [B_fg white; S": move"; E_fg]);
+    LTerm_draw.draw_styled lctx 7 2 (eval [B_fg yellow; S"Up, Down"; E_fg]);
+    LTerm_draw.draw_styled lctx 7 12 (eval [B_fg white; S": rotate"; E_fg]);
+    LTerm_draw.draw_styled lctx 8 2 (eval [B_fg yellow; S"Space"; E_fg]);
+    LTerm_draw.draw_styled lctx 8 12 (eval [B_fg white; S": drop"; E_fg]);
+    LTerm_draw.draw_styled lctx 9 2 (eval [B_fg yellow; S"Esc"; E_fg]);
+    LTerm_draw.draw_styled lctx 9 12 (eval [B_fg white; S": quit"; E_fg]);
+
+    LTerm_draw.draw_styled lctx (state.height-1) 0 (eval [B_fg blue; S"https://github.com/vzaliva/otetris"; E_fg])
+  in
+  let draw_glass = 
+    let w = state.width and h=state.height in
+    LTerm_draw.draw_frame ctx { row1 = -1; col1 = 0; row2 = h+1; col2 = w+3 } LTerm_draw.Heavy;
+    let ctx = LTerm_draw.sub ctx { row1 = 0; col1 = 1; row2 = h; col2 = w+2 } in
+    ignore (iter2D state.cells w (draw_cell ctx));
+    if (state.over) then
+      let my = state.height/2 in
+      let mctx = LTerm_draw.sub ctx { row1 = my-1; col1 = 0; row2 = my+2; col2 = w+1 } in
+      let bst = {
+          bold=Some true;
+          underline=None;
+          blink=Some true;
+          reverse=Some true;
+          foreground=Some red;
+          background=Some black;
+        } in 
+      LTerm_draw.fill mctx ?style:(Some bst) (UChar.of_char '*');
+      LTerm_draw.draw_frame mctx { row1 = 0; col1 = 0; row2 = 3; col2 = w+1} LTerm_draw.Heavy;
+      LTerm_draw.draw_styled mctx 1 1 (eval [B_fg red; S"Game over"; E_fg])
+    else
+      draw_tetromino ctx state
+  in
+  draw_glass ; draw_legend
 
 lwt () =
   Random.self_init();

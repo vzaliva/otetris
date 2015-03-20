@@ -4,7 +4,7 @@ Simple console (text mode) Tetris written in OCaml language.
 
 <div align="center">
         <img width="45%" src="screenshot.png" alt="About screen" title="About screen"</img>
-</div
+</div>
 
 Tetris game model is followig Tetris Guidelines from http://tetris.wikia.com/
 

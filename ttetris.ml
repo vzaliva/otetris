@@ -43,32 +43,35 @@ let wait_for_event ui = LTerm_ui.wait ui >>= fun x -> return (LEvent x)
 let wait_for_tick () = Lwt_unix.sleep (gravity_period gravity) >>= fun () -> return (LTick)
 
 let rec loop ui state event_thread tick_thread =
-  (* TODO: game over handling *)
-  Lwt.choose [ event_thread; tick_thread ] >>= function
+  Lwt.choose [ event_thread; tick_thread ] >>= fun e ->
+  let cstate = !state in
+  let rstate = initial_state cstate.width cstate.height in
+  match e with
   | LEvent (LTerm_event.Key {code = Up}) ->
-     state := update_state RotateCw !state;
+     state := if cstate.over then rstate else update_state RotateCw cstate;
      LTerm_ui.draw ui;
      loop ui state (wait_for_event ui) tick_thread
   | LEvent (LTerm_event.Key {code = Down}) ->
-     state := update_state RotateCCw !state;
+     state := if cstate.over then rstate else update_state RotateCCw cstate;
      LTerm_ui.draw ui;
      loop ui state (wait_for_event ui) tick_thread
   | LEvent (LTerm_event.Key {code = Char _}) ->
-     state := update_state Drop !state;
+     state := if cstate.over then rstate else update_state Drop cstate;
      LTerm_ui.draw ui;
      loop ui state (wait_for_event ui) tick_thread
   | LEvent (LTerm_event.Key {code = Left}) ->
-     state := update_state MoveLeft !state;
+     state := if cstate.over then rstate else update_state MoveLeft cstate;
      LTerm_ui.draw ui;
      loop ui state (wait_for_event ui) tick_thread
   | LEvent (LTerm_event.Key {code = Right}) ->
-     state := update_state MoveRight !state;
+     state := if cstate.over then rstate else update_state MoveRight cstate;
      LTerm_ui.draw ui;
      loop ui state (wait_for_event ui) tick_thread
   | LEvent (LTerm_event.Key {code = Escape}) ->
      return ()
   | LTick ->
-     state := update_state Tick !state;
+     if not cstate.over then
+       state := update_state Tick cstate;
      LTerm_ui.draw ui;
      loop ui state event_thread (wait_for_tick ())
   | _ ->

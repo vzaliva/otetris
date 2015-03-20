@@ -27,6 +27,20 @@ https://github.com/Swordfish90/cool-retro-term
 For example chose IBM 3278 more and make sure your font is scaled down
 to 50% so it would allow 80 columns and 25 rows.
 
+### TODO
+
+The following features are implmented yet:
+
+1. Wall kicks
+2. Soft Drop
+3. Leveling up and speed increase
+4. T-Spin bonus
+5. Lock delay (but perhaps we have an implicit one due to fixed timer)
+6. Optional display of next-coming tetrominoes
+7. Optional ghost (shadow) piece display
+
+(feel free to add yourself!)
+
 ### Author
 Vadim Zaliva lord@crocodile.org
 

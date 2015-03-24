@@ -41,16 +41,14 @@ let rec loop state =
   | _ ->
      loop state
 
-let timer_fun (flag, callback) =
-  let rec timer_loop flag callback =
-    if !flag then
-      Thread.exit
-    else
-      (Thread.delay 0.5;
-       callback ();
-       (timer_loop flag callback))
-  in timer_loop flag callback
-                
+let rec timer_loop (flag, callback) =
+  if !flag then
+    Thread.exit
+  else
+    (Thread.delay 0.5;
+     callback ();
+     (timer_loop (flag, callback)))
+      
 let main () =
   Random.self_init();
   let (state:(Tetris.state ref)) = ref (initial_state board_width board_height) in
@@ -60,9 +58,9 @@ let main () =
   Sdlttf.init ();
   at_exit Sdlttf.quit;
   Sdlwm.set_caption ~title:"GTetris" ~icon:"GTetris";
-  let timer_flag = ref false in
-  let timer_cb () = Sdlevent.add [USER tickUserEventNo]  in
-  let timer_thread = Thread.create timer_fun (timer_flag, timer_cb) in
+  let timer_flag = ref false
+  and timer_cb () = Sdlevent.add [USER tickUserEventNo]  in
+  let timer_thread = Thread.create timer_loop (timer_flag, timer_cb) in
   loop state;
   timer_flag := true;
   Thread.join timer_thread

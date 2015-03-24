@@ -42,7 +42,8 @@ let main () =
   let screen = Sdlvideo.set_video_mode 400 400 [`DOUBLEBUF] in
   at_exit Sdl.quit;
   Sdlttf.init ();
-  at_exit Sdlttf.quit;    
+  at_exit Sdlttf.quit;
+  Sdlwm.set_caption ~title:"GTetris" ~icon:"GTetris";
   loop state
 
 let _ = main ()                

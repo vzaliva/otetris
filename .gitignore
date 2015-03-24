@@ -9,7 +9,4 @@
 *.cmxa
 ttetris
 gtetris
-
-._d/tetris.d
-
-._d/ttetris.d
+._d/*

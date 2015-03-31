@@ -46,33 +46,28 @@ let rec loop ui state event_thread tick_thread =
   Lwt.choose [ event_thread; tick_thread ] >>= fun e ->
   let cstate = !state in
   let rstate = initial_state cstate.width cstate.height in
+  LTerm_ui.draw ui;
   match e with
   | LEvent (LTerm_event.Key {code = Up}) ->
      state := if cstate.over then rstate else update_state RotateCw cstate;
-     LTerm_ui.draw ui;
      loop ui state (wait_for_event ui) tick_thread
   | LEvent (LTerm_event.Key {code = Down}) ->
      state := if cstate.over then rstate else update_state RotateCCw cstate;
-     LTerm_ui.draw ui;
      loop ui state (wait_for_event ui) tick_thread
   | LEvent (LTerm_event.Key {code = Char _}) ->
      state := if cstate.over then rstate else update_state HardDrop cstate;
-     LTerm_ui.draw ui;
      loop ui state (wait_for_event ui) tick_thread
   | LEvent (LTerm_event.Key {code = Left}) ->
      state := if cstate.over then rstate else update_state MoveLeft cstate;
-     LTerm_ui.draw ui;
      loop ui state (wait_for_event ui) tick_thread
   | LEvent (LTerm_event.Key {code = Right}) ->
      state := if cstate.over then rstate else update_state MoveRight cstate;
-     LTerm_ui.draw ui;
      loop ui state (wait_for_event ui) tick_thread
   | LEvent (LTerm_event.Key {code = Escape}) ->
      return ()
   | LTick ->
      if not cstate.over then
        state := update_state Tick cstate;
-     LTerm_ui.draw ui;
      loop ui state event_thread (wait_for_tick ())
   | _ ->
      loop ui state (wait_for_event ui) tick_thread

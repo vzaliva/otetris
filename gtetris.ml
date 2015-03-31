@@ -20,6 +20,16 @@ let glass_color = white
 let tickUserEventNo = 0
 let opaque = 255 (* for alpha channel values in RGBA *)
 
+
+let rgb_color_map = function
+  | Cyan -> (0,255,255)
+  | Yellow -> (255,255,0)
+  | Purple ->  (128,0,128)
+  | Green ->  (0,255,0)
+  | Red -> (255,0,0)
+  | Blue -> (0,0,255)
+  | Orange ->  (255, 165, 0)
+
 let rec loop state =
   let cstate = !state in
   let rstate = initial_state cstate.width cstate.height in

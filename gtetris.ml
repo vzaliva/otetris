@@ -14,7 +14,7 @@ let gravity = 0.05
 
 (* misc colors and dimensions *)
 let block_side = 20
-let glass_color = white
+let glass_color = (255,255,255)
 
 (* additional internal constants *)
 let tickUserEventNo = 0
@@ -30,9 +30,51 @@ let rgb_color_map = function
   | Blue -> (0,0,255)
   | Orange ->  (255, 165, 0)
 
+let cell_color = function
+  | Empty -> black
+  | Color x -> rgb_color_map x
+
+let rec timer_loop (flag, callback) =
+  if !flag then
+    Thread.exit
+  else
+    (Thread.delay 0.5;
+     callback ();
+     (timer_loop (flag, callback)))
+
+let box screen x y w h c a =
+  let r1 = rect x y 0 0 and r2 = rect (x+w) (y+h) 0 0 in
+  ignore (Sdlgfx.boxRGBA screen r1 r2 c a)
+
+let draw_cell screen v x y =
+  box screen ((x+1)*block_side) (y*block_side) block_side block_side (cell_color v) opaque
+
+let draw_tetromino screen state =
+  ignore (BatList.map (
+              (fun (x, y) -> draw_cell screen (Color state.tetromino.color) x y)
+              % (xyplus state.position)
+              % (rotate (rotation_matrix state.rotation) state.tetromino.center)
+            ) state.tetromino.geometry)
+
+let draw state screen =
+  let w = state.width and h=state.height in
+  ignore (iter2D state.cells w (draw_cell screen));
+  if (state.over) then
+    ()
+  else
+    (draw_tetromino screen state;
+     flip screen)
+
+let draw_walls screen =
+  box screen 0 0 block_side (block_side*board_height) glass_color opaque;
+  box screen (block_side*(board_width+1)) 0 block_side (block_side*board_height) glass_color opaque;
+  box screen 0 (block_side*board_height) (block_side*(board_width+2)) block_side glass_color opaque;
+  flip screen
+
 let rec loop state =
   let cstate = !state in
   let rstate = initial_state cstate.width cstate.height in
+  draw cstate (get_video_surface ());
   match wait_event () with
   | KEYDOWN {keysym=KEY_UP} ->
      state := if cstate.over then rstate else update_state RotateCw cstate;
@@ -40,7 +82,7 @@ let rec loop state =
   | KEYDOWN {keysym=KEY_DOWN} ->
      state := if cstate.over then rstate else update_state RotateCCw cstate;
      loop state
-  | KEYDOWN {keycode=' '} ->
+  | KEYDOWN {keysym=KEY_SPACE} ->
      state := if cstate.over then rstate else update_state HardDrop cstate;
      loop state
   | KEYDOWN {keysym=KEY_LEFT} ->
@@ -58,24 +100,6 @@ let rec loop state =
   | _ ->
      loop state
 
-let rec timer_loop (flag, callback) =
-  if !flag then
-    Thread.exit
-  else
-    (Thread.delay 0.5;
-     callback ();
-     (timer_loop (flag, callback)))
-
-let box screen x y w h c a =
-  let r1 = rect x y 0 0 and r2 = rect (x+w) (y+h) 0 0 in
-  ignore (Sdlgfx.boxRGBA screen r1 r2 c a)
-      
-let draw_glass screen =
-  box screen 0 0 block_side (block_side*board_height) glass_color opaque;
-  box screen (block_side*(board_width+1)) 0 block_side (block_side*board_height) glass_color opaque;
-  box screen 0 (block_side*board_height) (block_side*(board_width+2)) block_side glass_color opaque;
-  flip screen
-
 let main () =
   Random.self_init();
   let (state:(Tetris.state ref)) = ref (initial_state board_width board_height) in
@@ -86,7 +110,7 @@ let main () =
   Sdlttf.init ();
   at_exit Sdlttf.quit;
   Sdlwm.set_caption ~title:"GTetris" ~icon:"GTetris";
-  draw_glass screen ;
+  draw_walls screen ;
   let timer_flag = ref false
   and timer_cb () = Sdlevent.add [USER tickUserEventNo]  in
   let timer_thread = Thread.create timer_loop (timer_flag, timer_cb) in

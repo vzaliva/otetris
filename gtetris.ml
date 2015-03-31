@@ -5,14 +5,21 @@ open BatList
 open Tetris
 open Sdlevent
 open Sdlkey
+open Sdlvideo
        
 (* Game board dimensions *)
 let board_width = 10 and board_height = 22
 (* Using fixed gravity  for now *)
 let gravity = 0.05
 
+(* misc colors and dimensions *)
+let block_side = 20
+let glass_color = white
+
+(* additional internal constants *)
 let tickUserEventNo = 0
-                        
+let opaque = 255 (* for alpha channel values in RGBA *)
+
 let rec loop state =
   let cstate = !state in
   let rstate = initial_state cstate.width cstate.height in
@@ -48,16 +55,28 @@ let rec timer_loop (flag, callback) =
     (Thread.delay 0.5;
      callback ();
      (timer_loop (flag, callback)))
+
+let box screen x y w h c a =
+  let r1 = rect x y 0 0 and r2 = rect (x+w) (y+h) 0 0 in
+  ignore (Sdlgfx.boxRGBA screen r1 r2 c a)
       
+let draw_glass screen =
+  box screen 0 0 block_side (block_side*board_height) glass_color opaque;
+  box screen (block_side*(board_width+1)) 0 block_side (block_side*board_height) glass_color opaque;
+  box screen 0 (block_side*board_height) (block_side*(board_width+2)) block_side glass_color opaque;
+  flip screen
+
 let main () =
   Random.self_init();
   let (state:(Tetris.state ref)) = ref (initial_state board_width board_height) in
   Sdl.init [`VIDEO];
-  let screen = Sdlvideo.set_video_mode 400 400 [`DOUBLEBUF] in
+  let screen_width = block_side*(board_width+2) and screen_height=block_side*(board_height+1) in
+  let screen = set_video_mode screen_width screen_height [`DOUBLEBUF] in
   at_exit Sdl.quit;
   Sdlttf.init ();
   at_exit Sdlttf.quit;
   Sdlwm.set_caption ~title:"GTetris" ~icon:"GTetris";
+  draw_glass screen ;
   let timer_flag = ref false
   and timer_cb () = Sdlevent.add [USER tickUserEventNo]  in
   let timer_thread = Thread.create timer_loop (timer_flag, timer_cb) in

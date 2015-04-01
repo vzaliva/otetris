@@ -6,7 +6,8 @@ open Tetris
 open Sdlevent
 open Sdlkey
 open Sdlvideo
-       
+open Sdlttf
+
 (* Game board dimensions *)
 let board_width = 10 and board_height = 22
 (* Using fixed gravity  for now *)
@@ -19,6 +20,8 @@ let glass_color = (255,255,255)
 (* additional internal constants *)
 let tickUserEventNo = 0
 let opaque = 255 (* for alpha channel values in RGBA *)
+let font_filename  = "arial.ttf"
+let font_size = 24
 
 
 let rgb_color_map = function
@@ -46,6 +49,10 @@ let box screen x y w h c a =
   let r1 = rect x y 0 0 and r2 = rect (x+w) (y+h) 0 0 in
   ignore (Sdlgfx.boxRGBA screen r1 r2 c a)
 
+let rectangle screen x y w h c a =
+  let r1 = rect x y 0 0 and r2 = rect (x+w) (y+h) 0 0 in
+  ignore (Sdlgfx.rectangleRGBA screen r1 r2 c a)
+
 let draw_cell screen v x y =
   box screen ((x+1)*block_side) (y*block_side) block_side block_side (cell_color v) opaque
 
@@ -56,14 +63,30 @@ let draw_tetromino screen state =
               % (rotate (rotation_matrix state.rotation) state.tetromino.center)
             ) state.tetromino.geometry)
 
+let show_game_over screen e =
+  let font = open_font font_filename font_size in
+  let text = render_text_blended font "Game Over" ~fg:Sdlvideo.white in
+  let (t_w,t_h,_) = surface_dims text in
+  let text_box = rect
+                           ((e.r_w - t_w) /2)
+                           ((e.r_h - t_h) /2)
+                           t_w t_h in
+  let f_x=(text_box.r_x-font_size)  and
+      f_y = (text_box.r_y-font_size) and
+      f_w = (text_box.r_w+(2*font_size)) and
+      f_h = (text_box.r_h+(2*font_size)) in
+  box screen f_x f_y f_w f_h black opaque;
+  rectangle screen f_x f_y f_w f_h white opaque;
+  blit_surface ~dst_rect:text_box ~src:text ~dst:screen ();
+  ()
+
 let draw state screen =
-  let w = state.width and h=state.height in
-  ignore (iter2D state.cells w (draw_cell screen));
+  ignore (iter2D state.cells state.width (draw_cell screen));
   if (state.over) then
-    ()
+    show_game_over screen (rect 0 0 (block_side*(board_width+2)) (block_side*(board_height+1)))
   else
-    (draw_tetromino screen state;
-     flip screen)
+    draw_tetromino screen state;
+  flip screen
 
 let draw_walls screen =
   box screen 0 0 block_side (block_side*board_height) glass_color opaque;

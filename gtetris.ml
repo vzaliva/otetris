@@ -2,6 +2,9 @@
 
 open Batteries
 open BatList
+open BatMap
+open BatInt
+
 open Tetris
 open Sdlevent
 open Sdlkey
@@ -22,7 +25,13 @@ let tickUserEventNo = 0
 let opaque = 255 (* for alpha channel values in RGBA *)
 let font_filename  = "arial.ttf"
 let font_size = 24
+let info_area_width = 400
 
+(* font cache *)
+module IntMap = Map.Make(struct type t = int let compare : int -> int -> int = compare end)                        
+(* module IntMap = Map.Make(Int) *)
+                        
+let font_cache = ref IntMap.empty
 
 let rgb_color_map = function
   | Cyan -> (0,255,255)
@@ -63,8 +72,17 @@ let draw_tetromino screen state =
               % (rotate (rotation_matrix state.rotation) state.tetromino.center)
             ) state.tetromino.geometry)
 
+let get_font (sz:int) : Sdlttf.font =
+  let c = !font_cache in
+  if IntMap.mem sz c then
+    IntMap.find sz c
+  else
+    let f = open_font font_filename sz in
+    font_cache := IntMap.add sz f c ;
+    f
+
 let show_game_over screen e =
-  let font = open_font font_filename font_size in
+  let font = get_font font_size in
   let text = render_text_blended font "Game Over" ~fg:Sdlvideo.white in
   let (t_w,t_h,_) = surface_dims text in
   let text_box = rect
@@ -127,13 +145,13 @@ let main () =
   Random.self_init();
   let (state:(Tetris.state ref)) = ref (initial_state board_width board_height) in
   Sdl.init [`VIDEO];
-  let screen_width = block_side*(board_width+2) and screen_height=block_side*(board_height+1) in
+  let screen_width = block_side*(board_width+2)+info_area_width and screen_height=block_side*(board_height+1) in
   let screen = set_video_mode screen_width screen_height [`DOUBLEBUF] in
   at_exit Sdl.quit;
   Sdlttf.init ();
   at_exit Sdlttf.quit;
   Sdlwm.set_caption ~title:"GTetris" ~icon:"GTetris";
-  draw_walls screen ;
+  draw_walls screen;
   let timer_flag = ref false
   and timer_cb () = Sdlevent.add [USER tickUserEventNo]  in
   let timer_thread = Thread.create timer_loop (timer_flag, timer_cb) in

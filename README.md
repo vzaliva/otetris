@@ -1,7 +1,13 @@
 # OCaml Tetris
 
-Simple console (text mode) Tetris written in OCaml language.
+Simple Tetris game written in OCaml language.
 
+Graphics mode:
+<div align="center">
+        <img width="45%" src="screenshot1.png" alt="About screen" title="About screen"</img>
+</div>
+
+Text mode:
 <div align="center">
         <img width="45%" src="screenshot.png" alt="About screen" title="About screen"</img>
 </div>
@@ -16,8 +22,9 @@ It is written in pure-functional style, whenever possible and not
 designed for efficiency but rather as OCaml learning excericse.
 
 ### Dependencies
-1. https://github.com/diml/lambda-term  
-2. http://batteries.forge.ocamlcore.org/  
+1. https://github.com/diml/lambda-term
+2. http://batteries.forge.ocamlcore.org/
+3. http://ocamlsdl.sourceforge.net/home.html
 
 ### MIsc
 If you feel nostalgic, you should try to play using this terminal emulator:

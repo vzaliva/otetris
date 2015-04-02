@@ -26,9 +26,10 @@ let opaque = 255 (* for alpha channel values in RGBA *)
 let font_filename  = "arial.ttf"
 let legend_area_width = 400
 
+let glass_width = block_side*(board_width+2) and glass_height=block_side*(board_height+1) ;;
+
 (* font cache *)
 module IntMap = Map.Make(struct type t = int let compare : int -> int -> int = compare end)                        
-(* module IntMap = Map.Make(Int) *)
                         
 let font_cache = ref IntMap.empty
 
@@ -86,6 +87,7 @@ let txt_at txt x y size color screen =
   let text = render_text_blended font txt ~fg:color in
   let (t_w,t_h,_) = surface_dims text in
   let text_box = rect x y t_w t_h in
+  box screen x y t_w t_h black opaque;
   blit_surface ~dst_rect:text_box ~src:text ~dst:screen ();
   ()
 
@@ -127,8 +129,15 @@ let show_game_over screen e =
   blit_surface ~dst_rect:text_box ~src:text ~dst:screen ();
   ()
 
+let show_score state screen =
+  let numbers_size = 20 in
+  let y = 0 and x = glass_width in
+  txt_at (Printf.sprintf "%u        " state.score) (x+90) y numbers_size red screen;
+  txt_at (Printf.sprintf "%u        " state.level ) (x+270) y numbers_size green screen
+
 let draw state screen =
   ignore (iter2D state.cells state.width (draw_cell screen));
+  show_score state screen;
   if (state.over) then
     show_game_over screen (rect 0 0 (block_side*(board_width+2)) (block_side*(board_height+1)))
   else
@@ -174,7 +183,6 @@ let main () =
   Random.self_init();
   let (state:(Tetris.state ref)) = ref (initial_state board_width board_height) in
   Sdl.init [`VIDEO];
-  let glass_width = block_side*(board_width+2) and glass_height=block_side*(board_height+1) in
   let screen = set_video_mode (glass_width+legend_area_width) glass_height [`DOUBLEBUF] in
   at_exit Sdl.quit;
   Sdlttf.init ();

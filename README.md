@@ -26,6 +26,11 @@ designed for efficiency but rather as OCaml learning excericse.
 2. http://batteries.forge.ocamlcore.org/
 3. http://ocamlsdl.sourceforge.net/home.html
 
+To install dependencies on Mac (using ``macports`` and ``opam``):
+
+    $ sudo port install libsdl2 libsdl2_image libsdl2_mixer libsdl2_net libsdl2_ttf
+    $ opam install conf-sdl2-image conf-sdl2-mixer conf-sdl2-net conf-sdl2-ttf ocamlsdl
+
 ### MIsc
 If you feel nostalgic, you should try to play using this terminal emulator:
 

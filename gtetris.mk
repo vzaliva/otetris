@@ -3,8 +3,12 @@ RESULT     = gtetris
 SOURCES    = tetris.ml gtetris.ml
 LIBS       = batteries sdl
 INCDIRS    = $(HOME)/.opam/system/lib/sdl
-OCAMLLDFLAGS = -cclib "-framework Cocoa"
 THREADS = true
+
+OS := $(shell uname)
+ifeq ($(OS),Darwin)
+  OCAMLLDFLAGS = -cclib "-framework Cocoa"
+endif
 
 include OCamlMakefile
 

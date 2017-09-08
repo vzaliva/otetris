@@ -31,11 +31,6 @@ To install dependencies on Mac (using ``macports`` and ``opam``):
     $ sudo port install libsdl2 libsdl2_image libsdl2_mixer libsdl2_net libsdl2_ttf
     $ opam install conf-sdl2-image conf-sdl2-mixer conf-sdl2-net conf-sdl2-ttf ocamlsdl
     
-    
-NOTE: Due to https://github.com/ocsigen/lwt/issues/401 you need to do 
-
-    opam pin add --dev-repo lwt
-    
 ### Misc
 If you feel nostalgic, you should try to play using this terminal emulator:
 

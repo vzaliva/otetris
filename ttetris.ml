@@ -129,7 +129,6 @@ let%lwt () =
   let (state:(Tetris.state ref)) = ref (initial_state board_width board_height) in
   let%lwt term = Lazy.force LTerm.stdout in
   let%lwt ui = LTerm_ui.create term (fun matrix size -> draw matrix size !state) in
-  try%lwt
-      loop ui state (wait_for_event ui) (wait_for_tick ())
-  with
-  | Failure _ -> LTerm_ui.quit ui
+  Lwt.finalize
+    (fun () -> loop ui state (wait_for_event ui) (wait_for_tick ()))
+    (fun () -> LTerm_ui.quit ui)

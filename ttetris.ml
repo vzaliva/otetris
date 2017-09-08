@@ -88,19 +88,19 @@ let draw ui matrix state =
     LTerm_draw.draw_styled lctx 1 0 (eval [B_fg cyan; S (Printf.sprintf "Score: %u" state.score); E_fg]);
     LTerm_draw.draw_styled lctx 2 0 (eval [B_fg lblue; S (Printf.sprintf "Level: %u" state.level); E_fg]);
 
-    LTerm_draw.draw_styled lctx 5 0 (eval [B_fg green; S"Controls:"; E_fg]);
-    LTerm_draw.draw_styled lctx 6 2 (eval [B_fg yellow; S"<-, ->"; E_fg]);
-    LTerm_draw.draw_styled lctx 6 12 (eval [B_fg white; S": move"; E_fg]);
-    LTerm_draw.draw_styled lctx 7 2 (eval [B_fg yellow; S"Up, Down"; E_fg]);
-    LTerm_draw.draw_styled lctx 7 12 (eval [B_fg white; S": rotate"; E_fg]);
-    LTerm_draw.draw_styled lctx 8 2 (eval [B_fg yellow; S"Space"; E_fg]);
-    LTerm_draw.draw_styled lctx 8 12 (eval [B_fg white; S": drop"; E_fg]);
-    LTerm_draw.draw_styled lctx 9 2 (eval [B_fg yellow; S"Esc"; E_fg]);
-    LTerm_draw.draw_styled lctx 9 12 (eval [B_fg white; S": quit"; E_fg]);
+    LTerm_draw.draw_styled lctx 5 0  (eval [B_fg green  ; S"Controls:" ; E_fg]);
+    LTerm_draw.draw_styled lctx 6 2  (eval [B_fg yellow ; S"<-, ->"    ; E_fg]);
+    LTerm_draw.draw_styled lctx 6 12 (eval [B_fg white  ; S": move"    ; E_fg]);
+    LTerm_draw.draw_styled lctx 7 2  (eval [B_fg yellow ; S"Up, Down"  ; E_fg]);
+    LTerm_draw.draw_styled lctx 7 12 (eval [B_fg white  ; S": rotate"  ; E_fg]);
+    LTerm_draw.draw_styled lctx 8 2  (eval [B_fg yellow ; S"Space"     ; E_fg]);
+    LTerm_draw.draw_styled lctx 8 12 (eval [B_fg white  ; S": drop"    ; E_fg]);
+    LTerm_draw.draw_styled lctx 9 2  (eval [B_fg yellow ; S"Esc"       ; E_fg]);
+    LTerm_draw.draw_styled lctx 9 12 (eval [B_fg white  ; S": quit"    ; E_fg]);
 
     LTerm_draw.draw_styled lctx (state.height-1) 0 (eval [B_fg blue; S"https://github.com/vzaliva/otetris"; E_fg])
   in
-  let draw_glass = 
+  let draw_glass =
     let w = state.width and h=state.height in
     LTerm_draw.draw_frame ctx { row1 = -1; col1 = 0; row2 = h+1; col2 = w+3 } LTerm_draw.Heavy;
     let ctx = LTerm_draw.sub ctx { row1 = 0; col1 = 1; row2 = h; col2 = w+2 } in
@@ -124,12 +124,12 @@ let draw ui matrix state =
   in
   draw_glass ; draw_legend
 
-lwt () =
+let%lwt () =
   Random.self_init();
   let (state:(Tetris.state ref)) = ref (initial_state board_width board_height) in
-  lwt term = Lazy.force LTerm.stdout in
-  lwt ui = LTerm_ui.create term (fun matrix size -> draw matrix size !state) in
-  try_lwt
-    loop ui state (wait_for_event ui) (wait_for_tick ())
-  finally
-    LTerm_ui.quit ui
+  let%lwt term = Lazy.force LTerm.stdout in
+  let%lwt ui = LTerm_ui.create term (fun matrix size -> draw matrix size !state) in
+  try%lwt
+      loop ui state (wait_for_event ui) (wait_for_tick ())
+  with
+  | Failure _ -> LTerm_ui.quit ui

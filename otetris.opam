@@ -1,4 +1,5 @@
 opam-version: "1.2"
+version: "1.0"
 maintainer: "lord@crocodile.org"
 homepage: "https://github.com/vzaliva/otetris"
 dev-repo: "https://github.com/vzaliva/otetris.git"
@@ -6,11 +7,10 @@ bug-reports: "https://github.com/vzaliva/otetris/issues"
 authors: ["Vadim Zaliva"]
 license: "MIT"
 build: [
-  ["omake"]
+  ["jbuilder" "build"]
 ]
 install: [
-  ["install" "otetris" "%{bin}%"]
-  ["install" "ttetris" "%{bin}%"]
+  ["jbuilder" "install"]
 ]
 
 remove: [
@@ -29,7 +29,3 @@ depends: [
   "ocamlsdl"
 ]
   
-tags: [
-  "category:Miscellaneous/Coq Extensions"
-  "date:2017-01-04"
-]

@@ -21,7 +21,18 @@ Tetris game model is followig Tetris Guidelines from http://tetris.wikia.com/
 It is written in pure-functional style, whenever possible and not
 designed for efficiency but rather as OCaml learning excericse.
 
-### Dependencies
+### Install
+
+#### via OPAM
+
+The easiest way to install is via:
+
+    $ opam install otetris
+
+#### Manuall install
+
+You need to fetch and install some dependencies:
+
 1. https://github.com/diml/lambda-term
 2. http://batteries.forge.ocamlcore.org/
 3. http://ocamlsdl.sourceforge.net/home.html
@@ -29,7 +40,15 @@ designed for efficiency but rather as OCaml learning excericse.
 To install dependencies on Mac (using ``macports`` and ``opam``):
 
     $ sudo port install libsdl2 libsdl2_image libsdl2_mixer libsdl2_net libsdl2_ttf
-    $ opam install conf-sdl2-image conf-sdl2-mixer conf-sdl2-net conf-sdl2-ttf ocamlsdl
+    $ opam install jbuilder conf-sdl2-image conf-sdl2-mixer conf-sdl2-net conf-sdl2-ttf ocamlsdl
+    
+To build:
+
+    $ jbuilder build
+    
+To install:
+
+    $ jbuilder install
     
 ### Misc
 If you feel nostalgic, you should try to play using this terminal emulator:

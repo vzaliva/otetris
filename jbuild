@@ -1,0 +1,10 @@
+(jbuild_version 1)
+
+(executables
+ ((names        (gtetris ttetris))
+  (public_names (gtetris ttetris))
+  (libraries (lwt.unix batteries lambda-term sdl.sdlimage sdl.sdlmixer sdl.sdlttf sdl.sdlgfx sdl))
+  (preprocess (pps (lwt.ppx)))
+ ))
+
+

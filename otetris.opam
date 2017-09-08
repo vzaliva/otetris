@@ -1,0 +1,35 @@
+opam-version: "1.2"
+maintainer: "lord@crocodile.org"
+homepage: "https://github.com/vzaliva/otetris"
+dev-repo: "https://github.com/vzaliva/otetris.git"
+bug-reports: "https://github.com/vzaliva/otetris/issues"
+authors: ["Vadim Zaliva"]
+license: "MIT"
+build: [
+  ["omake"]
+]
+install: [
+  ["install" "otetris" "%{bin}%"]
+  ["install" "ttetris" "%{bin}%"]
+]
+
+remove: [
+  ["rm" "%{bin}%/otetris"]
+  ["rm" "%{bin}%/ttetris"]
+]
+
+depends: [
+  "batteries"
+  "lwt"
+  "lambda-term"
+  "conf-sdl2-image"
+  "conf-sdl2-mixer"
+  "conf-sdl2-net"
+  "conf-sdl2-ttf"
+  "ocamlsdl"
+]
+  
+tags: [
+  "category:Miscellaneous/Coq Extensions"
+  "date:2017-01-04"
+]

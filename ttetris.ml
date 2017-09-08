@@ -1,5 +1,3 @@
- (*pp camlp4o `ocamlfind query -i-format lwt` `ocamlfind query -predicates syntax,preprocessor -a-format -r lwt.syntax` *)
-
 (* Simple text tetris *)
 
 open Batteries

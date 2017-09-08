@@ -10,3 +10,10 @@
 ttetris
 gtetris
 ._d/*
+
+# jbuild-generated files
+.merlin
+coq_min_imports.install
+
+# ocamlbuild working directory
+_build/

@@ -23,7 +23,7 @@ let glass_color = (255,255,255)
 (* additional internal constants *)
 let tickUserEventNo = 0
 let opaque = 255 (* for alpha channel values in RGBA *)
-let font_filename  = "arial.ttf"
+let font_filename  = "NotoSansUI-Regular.ttf"
 let legend_area_width = 400
 
 let glass_width = block_side*(board_width+2) and glass_height=block_side*(board_height+1) ;;
@@ -109,7 +109,7 @@ let draw_legend screen r =
   txt_at "Esc" x (y+60) help_size yellow screen;
   txt_at "quit" x1 (y+60) help_size green screen;
   let url_size = 16 in
-  txt_at "https://github.com/vzaliva/otetris" (r.r_x+170) (r.r_y+r.r_h-2*url_size) url_size blue screen
+  txt_at "https://github.com/vzaliva/otetris" (r.r_x+100) (r.r_y+r.r_h-2*url_size) url_size blue screen
 
 let show_game_over screen e =
   let font_size = 24 in

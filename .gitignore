@@ -13,7 +13,7 @@ gtetris
 
 # jbuild-generated files
 .merlin
-coq_min_imports.install
+otetris.install
 
 # ocamlbuild working directory
 _build/

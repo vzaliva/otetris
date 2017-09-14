@@ -7,4 +7,9 @@
   (preprocess (pps (lwt.ppx)))
  ))
 
+(install
+ ((section share)
+  (files ((NotoSansUI-Regular.ttf as NotoSansUI-Regular.ttf)))))
+
+
 

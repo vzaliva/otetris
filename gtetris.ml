@@ -4,6 +4,7 @@ open Batteries
 open BatList
 open BatMap
 open BatInt
+open BatUnix
 
 open Tetris
 open Sdlevent
@@ -77,9 +78,12 @@ let get_font (sz:int) : Sdlttf.font =
   if IntMap.mem sz c then
     IntMap.find sz c
   else
-    let f = open_font font_filename sz in
-    font_cache := IntMap.add sz f c ;
-    f
+    match run_and_read "opam config var share" with
+    | WEXITED 0, p ->
+       let f = open_font (BatString.trim p ^ "/otetris/" ^ font_filename) sz in
+       font_cache := IntMap.add sz f c ;
+       f
+    | _, _ -> failwith "could not determine path to font files"
 
 
 let txt_at txt x y size color screen =

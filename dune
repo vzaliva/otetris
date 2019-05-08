@@ -1,0 +1,12 @@
+(executables
+ (names gtetris ttetris)
+ (public_names gtetris ttetris)
+ (libraries lwt.unix lwt_ppx batteries lambda-term sdl.sdlimage sdl.sdlttf
+   sdl.sdlgfx sdl)
+ (preprocess
+  (pps lwt_ppx)))
+
+(install
+ (section share)
+ (files
+  (NotoSansUI-Regular.ttf as NotoSansUI-Regular.ttf)))

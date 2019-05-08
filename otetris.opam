@@ -5,10 +5,10 @@ homepage: "https://github.com/vzaliva/otetris"
 bug-reports: "https://github.com/vzaliva/otetris/issues"
 license: "MIT"
 dev-repo: "https://github.com/vzaliva/otetris.git"
-build: ["jbuilder" "build"]
-install: ["jbuilder" "install"]
+build: ["dune" "build" "-p" name "-j" jobs]
+install: ["dune" "install"]
 depends: [
-  "jbuilder" {build}
+  "dune" {build & >= "1.0"}
   "batteries"
   "lwt"
   "lambda-term"
